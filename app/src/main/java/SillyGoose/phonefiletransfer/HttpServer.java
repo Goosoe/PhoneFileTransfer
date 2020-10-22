@@ -32,7 +32,7 @@ public class HttpServer extends NanoHTTPD {
     public Response serve(IHTTPSession session) {
         File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
         String outputZipPath = context.getCacheDir() + File.separator + outputName;
-//        context.getCacheDir()
+
         try {
             FileOutputStream fos = new FileOutputStream(outputZipPath);
             ZipOutputStream zipOut = new ZipOutputStream(fos);
@@ -54,4 +54,6 @@ public class HttpServer extends NanoHTTPD {
 
         return  newFixedLengthResponse("Something went wrong :(");
     }
+
+
 }

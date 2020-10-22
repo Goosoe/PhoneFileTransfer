@@ -23,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static String ip = "localhost";
     private static final int port = 8080;
+    private HttpServer server = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,30 +40,35 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-            ip = Utils.getIPAddress(true);
-
+        ip = Utils.getIPAddress(true);
 
         TextView ipText = (TextView) findViewById(R.id.ipText);
         ipText.setText(ip + ":" + port);
-
-        HttpServer server = new HttpServer(ip, port, this);
+        if(server == null) {
+            server = new HttpServer(ip, port, this);
+        }
         try {
             server.start();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        server.stop();
+    }
 
-
-
-
-
-
-
-
-
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(!server.isAlive()) {
+            try {
+                server.start();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
