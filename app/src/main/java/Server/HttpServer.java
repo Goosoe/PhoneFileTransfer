@@ -1,27 +1,26 @@
-package SillyGoose.phonefiletransfer;
+package Server;
 
 import android.content.Context;
 import android.os.Environment;
 
-import net.lingala.zip4j.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
-
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.ZipOutputStream;
 
 import fi.iki.elonen.NanoHTTPD;
 
 public class HttpServer extends NanoHTTPD {
     private final Context context;
+    private List<String> filesToSend;
     private static final String outputName = "out.zip";
-    public HttpServer(String ip , int port, Context context) {
+    public HttpServer(String ip , int port, Context context, List<String> filesToSend) {
         super(ip,port);
         this.context = context;
+        this.filesToSend = filesToSend;
         try {
             start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
         } catch (IOException e) {
@@ -30,7 +29,8 @@ public class HttpServer extends NanoHTTPD {
     }
     @Override
     public Response serve(IHTTPSession session) {
-        File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+//        File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+        File dir = new File(filesToSend.get(0));
         String outputZipPath = context.getCacheDir() + File.separator + outputName;
 
         try {

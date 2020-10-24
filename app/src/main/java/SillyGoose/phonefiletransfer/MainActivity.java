@@ -3,13 +3,13 @@ package SillyGoose.phonefiletransfer;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.IOException;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 
 import android.Manifest;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.karumi.dexter.Dexter;
@@ -19,17 +19,22 @@ import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 
+import org.w3c.dom.Text;
+
+import FileNavigator.FileNavActivity;
+
 public class MainActivity extends AppCompatActivity {
 
-    private static String ip = "localhost";
-    private static final int port = 8080;
-    private HttpServer server = null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        LinearLayout ll = (LinearLayout)  findViewById(R.id.fileNav);
 
+
+        //Ask permissions
         Dexter.withContext(this)
                 .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
                 .withListener(new PermissionListener() {
@@ -38,37 +43,24 @@ public class MainActivity extends AppCompatActivity {
                     @Override public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {/* ... */}
                 }).check();
 
+//        Invoke fileNavAct
+        startActivity(new Intent(this, FileNavActivity.class));
+//        new Intent(this, FileNavActivity.class);
 
 
-        ip = Utils.getIPAddress(true);
-
-        TextView ipText = (TextView) findViewById(R.id.ipText);
-        ipText.setText(ip + ":" + port);
-        if(server == null) {
-            server = new HttpServer(ip, port, this);
-        }
-        try {
-            server.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        server.stop();
-    }
 
+
+
+
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//    }
+//
     @Override
     protected void onResume() {
         super.onResume();
-        if(!server.isAlive()) {
-            try {
-                server.start();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 }
