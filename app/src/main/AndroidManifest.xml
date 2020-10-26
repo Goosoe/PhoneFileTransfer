@@ -13,7 +13,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.PhoneFileTransfer">
-        <activity android:name="FileNavigator.FileNavActivity" />
 
         <activity android:name="Server.StartServerActivity" />
 
