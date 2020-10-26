@@ -7,7 +7,6 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import SillyGoose.phonefiletransfer.R;
@@ -15,7 +14,7 @@ import SillyGoose.phonefiletransfer.R;
 public class StartServerActivity extends AppCompatActivity {
 
     private static String ip = "localhost";
-    private static final int port = 8080;
+    private static final int PORT = 8080;
     private HttpServer server = null;
 
     @Override
@@ -35,9 +34,9 @@ public class StartServerActivity extends AppCompatActivity {
 
         ip = Utils.getIPAddress(true);
         TextView ipText = (TextView) findViewById(R.id.ipText);
-        ipText.setText(ip + ":" + port);
+        ipText.setText(ip + ":" + PORT);
         if(server == null) {
-            server = new HttpServer(ip, port, this, files);
+            server = new HttpServer(ip, PORT, this, files);
         }
         try {
             server.start();

@@ -5,20 +5,24 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import FileNavigator.dummy.FileContent.FileData;
+import com.squareup.picasso.Picasso;
+
+import FileNavigator.ListIcon.ListIcon.IconData;
 import SillyGoose.phonefiletransfer.R;
 
+import java.io.File;
 import java.util.List;
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link FileData}.
+ * {@link RecyclerView.Adapter} that can display a {@link IconData}.
  * TODO: Replace the implementation with code for your data type.
  */
 public class FileRecyclerAdapter extends RecyclerView.Adapter<FileRecyclerAdapter.ViewHolder> {
 
-    private final List<FileData> mValues;
+    private final List<IconData> mValues;
     private static ClickListener clickListener;
 
     public interface ClickListener {
@@ -27,7 +31,7 @@ public class FileRecyclerAdapter extends RecyclerView.Adapter<FileRecyclerAdapte
     }
 
 
-    public FileRecyclerAdapter(List<FileData> items) {
+    public FileRecyclerAdapter(List<IconData> items) {
         mValues = items;
     }
 
@@ -42,7 +46,13 @@ public class FileRecyclerAdapter extends RecyclerView.Adapter<FileRecyclerAdapte
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
         holder.mIdView.setText(mValues.get(position).id);
-        holder.mContentView.setText(mValues.get(position).content);
+//        holder.mContentView.setText(mValues.get(position).content);
+        System.out.println("bruh " + mValues.get(position).description);
+        File f = new File(mValues.get(position).description);
+        if(f != null)
+            Picasso.get().load(f).resize(200,200).into(holder.imageView);
+        else
+            Picasso.get().invalidate(f);
     }
 
     @Override
@@ -54,11 +64,16 @@ public class FileRecyclerAdapter extends RecyclerView.Adapter<FileRecyclerAdapte
         this.clickListener = clickListener;
     }
 
+
+
+
+
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public final View mView;
         public final TextView mIdView;
         public final TextView mContentView;
-        public FileData mItem;
+        public final ImageView imageView;
+        public IconData mItem;
 
         public ViewHolder(View view) {
             super(view);
@@ -66,6 +81,8 @@ public class FileRecyclerAdapter extends RecyclerView.Adapter<FileRecyclerAdapte
             mView.setOnClickListener(this);
             mIdView = (TextView) view.findViewById(R.id.item_number);
             mContentView = (TextView) view.findViewById(R.id.content);
+            imageView = (ImageView) view.findViewById(R.id.imageView);
+
         }
 
         @Override
@@ -78,7 +95,12 @@ public class FileRecyclerAdapter extends RecyclerView.Adapter<FileRecyclerAdapte
             clickListener.onItemClick(getAdapterPosition(), v);
         }
 
-//        @Override
+        public ImageView getImageView() {
+            return imageView;
+        }
+
+
+        //        @Override
 //        public boolean onLongClick(View v) {
 //            clickListener.onItemLongClick(getAdapterPosition(), v);
 //            return true;

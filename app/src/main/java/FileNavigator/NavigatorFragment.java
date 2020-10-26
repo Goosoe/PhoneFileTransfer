@@ -13,7 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import SillyGoose.phonefiletransfer.R;
-import FileNavigator.dummy.FileContent;
+import FileNavigator.ListIcon.ListIcon;
 
 /**
  * A fragment representing a list of Items.
@@ -65,7 +65,7 @@ public class NavigatorFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new FileRecyclerAdapter(FileContent.ITEMS));
+            recyclerView.setAdapter(new FileRecyclerAdapter(ListIcon.ITEMS));
         }
         return view;
     }

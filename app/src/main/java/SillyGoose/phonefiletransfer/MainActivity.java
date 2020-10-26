@@ -15,7 +15,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
-import android.widget.LinearLayout;
 
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
@@ -25,7 +24,7 @@ import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 
 import FileNavigator.FileRecyclerAdapter;
-import FileNavigator.dummy.FileContent;
+import FileNavigator.ListIcon.ListIcon;
 import Server.StartServerActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -34,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private FileRecyclerAdapter mAdapter;
     private RecyclerView.LayoutManager layoutManager;
-    private List<FileContent.FileData> fileDataList;
+    private List<ListIcon.IconData> iconDataList;
     private String currentPath;
 
 
@@ -43,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 //        LinearLayout ll = (LinearLayout)  findViewById(R.id.fileNav);
-        fileDataList = new ArrayList<>();
+        iconDataList = new ArrayList<>();
         currentPath = null;
 
         //Ask permissions
@@ -67,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
 
         // specify an adapter (see also next example)
         updateListToGetFile(null);
-        mAdapter = new FileRecyclerAdapter(fileDataList);
+        mAdapter = new FileRecyclerAdapter(iconDataList);
         mAdapter.setOnItemClickListener(new FileRecyclerAdapter.ClickListener() {
             @Override
             public void onItemClick(int position, View v) {
@@ -88,16 +87,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getFolder(int position) {
-        if(updateListToGetFile(fileDataList.get(position).id)) {
+        if(updateListToGetFile(iconDataList.get(position).id)) {
             Intent serverStart = new Intent(this, StartServerActivity.class);
-            serverStart.putExtra("FilePath", currentPath.concat(File.separator).concat(fileDataList.get(position).id));
+            serverStart.putExtra("FilePath", currentPath.concat(File.separator).concat(iconDataList.get(position).id));
             startActivity(serverStart);
         }
     }
 
 
     private void updateRecyclerView(int position, FileRecyclerAdapter adapter) {
-        if(updateListToGetFile(fileDataList.get(position).id)) {
+        if(updateListToGetFile(iconDataList.get(position).id)) {
             Intent serverStart = new Intent(this, StartServerActivity.class);
             serverStart.putExtra("FilePath", currentPath);
             startActivity(serverStart);
@@ -131,9 +130,9 @@ public class MainActivity extends AppCompatActivity {
 //            currentPath = getIntent().getStringExtra("path");
 //        }
         setTitle(currentPath);
-        fileDataList.clear();
+        iconDataList.clear();
         if(currentPath.length() > Environment.getExternalStorageDirectory().toString().length())
-            fileDataList.add(new FileContent.FileData("...","...","..."));
+            iconDataList.add(new ListIcon.IconData("...","...",""));
         // Read all files sorted into the values-array
         List<String> values = new LinkedList<>();
 
@@ -154,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
         }
         Collections.sort(values);
         for(String name : values)
-            fileDataList.add(new FileContent.FileData(name, name, name));
+            iconDataList.add(new ListIcon.IconData(name, name, currentPath.concat(File.separator).concat(name)));
         return false;
     }
 
