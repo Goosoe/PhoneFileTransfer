@@ -1,6 +1,7 @@
 package SillyGoose.phonefiletransfer;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,8 +25,6 @@ import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 
 import FileNavigator.FileRecyclerAdapter;
-import FileNavigator.ListIcon.ListIcon;
-import Server.StartServerActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -33,17 +32,18 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private FileRecyclerAdapter mAdapter;
     private RecyclerView.LayoutManager layoutManager;
-    private List<ListIcon.IconData> iconDataList;
-    private String currentPath;
+//    private List<ListIcon.IconData> iconDataList;
+//    private String currentPath;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 //        LinearLayout ll = (LinearLayout)  findViewById(R.id.fileNav);
-        iconDataList = new ArrayList<>();
-        currentPath = null;
+//        iconDataList = new ArrayList<>();
+//        currentPath = null;
 
         //Ask permissions
         Dexter.withContext(this)
@@ -54,108 +54,48 @@ public class MainActivity extends AppCompatActivity {
                     @Override public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {/* ... */}
                 }).check();
 
-        recyclerView = (RecyclerView) findViewById(R.id.listView);
+//        Bundle args = new Bundle();
+//        args.putParcelable("my_custom_object", ListIcon.IconData);
+//        NavigatorFragment fragment = NavigatorFragment.newInstance(1);
+////        fragment.setArguments(args);
+//        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+//        transaction.replace(R.id.navFrag, fragment);
+//        transaction.commit();
 
-        // use this setting to improve performance if you know that changes
-        // in content do not change the layout size of the RecyclerView
-        recyclerView.setHasFixedSize(true);
 
-        // use a linear layout manager
-        layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
-
-        // specify an adapter (see also next example)
-        updateListToGetFile(null);
-        mAdapter = new FileRecyclerAdapter(iconDataList);
-        mAdapter.setOnItemClickListener(new FileRecyclerAdapter.ClickListener() {
-            @Override
-            public void onItemClick(int position, View v) {
-                updateRecyclerView(position, mAdapter);
-            }
+//        recyclerView = (RecyclerView) findViewById(R.id.listView);
 //
+//        // use this setting to improve performance if you know that changes
+//        // in content do not change the layout size of the RecyclerView
+//        recyclerView.setHasFixedSize(true);
+//
+//        // use a linear layout manager
+//        layoutManager = new LinearLayoutManager(this);
+//        recyclerView.setLayoutManager(layoutManager);
+//
+//        // specify an adapter (see also next example)
+//        updateListToGetFile(null);
+//        mAdapter = new FileRecyclerAdapter(iconDataList);
+//        mAdapter.setOnItemClickListener(new FileRecyclerAdapter.ClickListener() {
 //            @Override
-//            public void onItemLongClick(int position, View v) {
-//                getFolder(position);
+//            public void onItemClick(int position, View v) {
+//                updateRecyclerView(position, mAdapter);
 //            }
-
-        });
-        recyclerView.setAdapter(mAdapter);
-
-
-
-
-    }
-
-    private void getFolder(int position) {
-        if(updateListToGetFile(iconDataList.get(position).id)) {
-            Intent serverStart = new Intent(this, StartServerActivity.class);
-            serverStart.putExtra("FilePath", currentPath.concat(File.separator).concat(iconDataList.get(position).id));
-            startActivity(serverStart);
-        }
-    }
+////
+////            @Override
+////            public void onItemLongClick(int position, View v) {
+////                getFolder(position);
+////            }
+//
+//        });
+//        recyclerView.setAdapter(mAdapter);
+//
 
 
-    private void updateRecyclerView(int position, FileRecyclerAdapter adapter) {
-        if(updateListToGetFile(iconDataList.get(position).id)) {
-            Intent serverStart = new Intent(this, StartServerActivity.class);
-            serverStart.putExtra("FilePath", currentPath);
-            startActivity(serverStart);
-        }
-        else{
-            adapter.notifyDataSetChanged();
-        }
 
     }
 
 
-    private boolean updateListToGetFile(String fileName){
-
-        if(currentPath == null)
-            currentPath = Environment.getExternalStorageDirectory().toString();
-
-        if(fileName != null){
-            if(fileName.equals("...")) {
-                currentPath = this.currentPath.replaceAll("^(.*)/.*?$", "$1");
-            }
-            else{
-                currentPath += File.separator + fileName;
-            }
-//            System.out.println("DEBUG?: " + currentPath.concat(File.separator).concat(fileName));
-
-
-        }
-
-//                getExternalStoragePublicDirectory(Environment.).toString();
-//        if (getIntent().hasExtra("path")) {
-//            currentPath = getIntent().getStringExtra("path");
-//        }
-        setTitle(currentPath);
-        iconDataList.clear();
-        if(currentPath.length() > Environment.getExternalStorageDirectory().toString().length())
-            iconDataList.add(new ListIcon.IconData("...","...",""));
-        // Read all files sorted into the values-array
-        List<String> values = new LinkedList<>();
-
-        File dir = new File(currentPath);
-        if(dir.isFile()){
-            return true;
-        }
-        if (!dir.canRead()) {
-            setTitle(getTitle() + " (inaccessible)");
-        }
-        String[] list = dir.list();
-        if (list != null) {
-            for (String file : list) {
-                if (!file.startsWith(".")) {
-                    values.add(file);
-                }
-            }
-        }
-        Collections.sort(values);
-        for(String name : values)
-            iconDataList.add(new ListIcon.IconData(name, name, currentPath.concat(File.separator).concat(name)));
-        return false;
-    }
 
 
     //    @Override

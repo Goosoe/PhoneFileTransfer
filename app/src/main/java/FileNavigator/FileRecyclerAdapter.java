@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import FileNavigator.ListIcon.ListIcon.IconData;
+//import FileNavigator.ListIcon.ListIcon.IconData;
 import SillyGoose.phonefiletransfer.R;
 
 import java.io.File;
