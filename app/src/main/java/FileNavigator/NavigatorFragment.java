@@ -37,6 +37,7 @@ public class NavigatorFragment extends Fragment {
     private List<IconData> iconDataList;
     private String currentPath;
     private FileRecyclerAdapter rAdapter;
+    private final static String BACK_SYMBOL = "<-";
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -127,7 +128,8 @@ public class NavigatorFragment extends Fragment {
             currentPath = Environment.getExternalStorageDirectory().toString();
 
         if(fileName != null){
-            if(fileName.equals("...")) {
+            if(fileName.equals(BACK_SYMBOL)) {
+                //removes the last /* to go back
                 currentPath = this.currentPath.replaceAll("^(.*)/.*?$", "$1");
             }
             else{
@@ -138,14 +140,11 @@ public class NavigatorFragment extends Fragment {
 
         }
 
-//                getExternalStoragePublicDirectory(Environment.).toString();
-//        if (getIntent().hasExtra("path")) {
-//            currentPath = getIntent().getStringExtra("path");
-//        }
         getActivity().setTitle(currentPath);
         iconDataList.clear();
         if(currentPath.length() > Environment.getExternalStorageDirectory().toString().length())
-            iconDataList.add(new IconData("...","...",""));
+            iconDataList.add(new IconData(BACK_SYMBOL,BACK_SYMBOL,""));
+
         // Read all files sorted into the values-array
         List<String> values = new LinkedList<>();
 

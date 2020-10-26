@@ -1,11 +1,5 @@
 package FileNavigator;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Helper class for providing sample content for user interfaces created by
  * Android template wizards.
@@ -16,12 +10,12 @@ import java.util.Map;
 public class IconData {
     public final String id;
     public final String content;
-    public final String description;
+    public final String filePath;
 
-    public IconData(String id, String content, String description) {
+    public IconData(String id, String content, String filePath) {
         this.id = id;
         this.content = content;
-        this.description = description;
+        this.filePath = filePath;
     }
 
     @Override

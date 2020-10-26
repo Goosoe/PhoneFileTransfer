@@ -47,8 +47,8 @@ public class FileRecyclerAdapter extends RecyclerView.Adapter<FileRecyclerAdapte
         holder.mItem = mValues.get(position);
         holder.mIdView.setText(mValues.get(position).id);
 //        holder.mContentView.setText(mValues.get(position).content);
-        System.out.println("bruh " + mValues.get(position).description);
-        File f = new File(mValues.get(position).description);
+        System.out.println("bruh " + mValues.get(position).filePath);
+        File f = new File(mValues.get(position).filePath);
         if(f != null)
             Picasso.get().load(f).resize(200,200).into(holder.imageView);
         else
