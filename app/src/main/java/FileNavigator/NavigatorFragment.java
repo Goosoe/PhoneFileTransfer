@@ -1,7 +1,6 @@
 package FileNavigator;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -20,8 +19,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import Listener.IStartServerButtonListener;
-import Server.StartServerActivity;
 import SillyGoose.phonefiletransfer.R;
 //import FileNavigator.ListIcon.ListIcon;
 
@@ -35,7 +32,7 @@ public class NavigatorFragment extends Fragment{
     // TODO: Customize parameters
     private int mColumnCount = 1;
 
-    private List<IconData> iconDataList;
+    private List<ListElementData> listElementDataList;
     private String currentPath;
     private FileRecyclerAdapter rAdapter;
     public final static String BACK_SYMBOL = "<-";
@@ -44,7 +41,7 @@ public class NavigatorFragment extends Fragment{
      * fragment (e.g. upon screen orientation changes).
      */
     public NavigatorFragment() {
-        iconDataList = new ArrayList<>();
+        listElementDataList = new ArrayList<>();
         currentPath = null;
     }
 
@@ -82,7 +79,7 @@ public class NavigatorFragment extends Fragment{
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            rAdapter = new FileRecyclerAdapter(iconDataList);
+            rAdapter = new FileRecyclerAdapter(listElementDataList);
                       recyclerView.setAdapter(rAdapter);
 
 
@@ -114,7 +111,7 @@ public class NavigatorFragment extends Fragment{
 
 
     private void updateRecyclerView(int position, FileRecyclerAdapter adapter) {
-        if(!updatePath(iconDataList.get(position).id)) {
+        if(!updatePath(listElementDataList.get(position).id)) {
 //            adapter.updateViews();
             adapter.notifyDataSetChanged();
         }
@@ -152,9 +149,9 @@ public class NavigatorFragment extends Fragment{
         }
 
         getActivity().setTitle(currentPath);
-        iconDataList.clear();
+        listElementDataList.clear();
         if(currentPath.length() > Environment.getExternalStorageDirectory().toString().length())
-            iconDataList.add(new IconData(BACK_SYMBOL,BACK_SYMBOL,""));
+            listElementDataList.add(new ListElementData(BACK_SYMBOL,BACK_SYMBOL,""));
 
         // Read all files sorted into the values-array
         List<String> values = new LinkedList<>();
@@ -176,7 +173,7 @@ public class NavigatorFragment extends Fragment{
         }
         Collections.sort(values);
         for(String name : values)
-            iconDataList.add(new IconData(name, name, currentPath.concat(File.separator).concat(name)));
+            listElementDataList.add(new ListElementData(name, name, currentPath.concat(File.separator).concat(name)));
         return false;
     }
 

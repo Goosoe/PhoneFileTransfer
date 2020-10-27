@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -19,14 +20,15 @@ import java.util.HashSet;
 import java.util.List;
 
 /**
- * {@link RecyclerView.Adapter} that can display a {@link IconData}.
+ * {@link RecyclerView.Adapter} that can display a {@link ListElementData}.
  * TODO: Replace the implementation with code for your data type.
  */
 public class FileRecyclerAdapter extends RecyclerView.Adapter<FileRecyclerAdapter.ViewHolder>{
 
-    private final List<IconData> mValues;
+    private final List<ListElementData> mValues;
     private static ClickListener clickListener;
-    private static HashSet<IconData> selectedIcon;
+    private static HashSet<ListElementData> selectedIcon;
+    private View view;
 
     public interface ClickListener {
         void onItemClick(int position, View v);
@@ -34,7 +36,7 @@ public class FileRecyclerAdapter extends RecyclerView.Adapter<FileRecyclerAdapte
     }
 
 
-    public FileRecyclerAdapter(List<IconData> items) {
+    public FileRecyclerAdapter(List<ListElementData> items) {
         mValues = items;
         selectedIcon = new HashSet<>();
     }
@@ -42,7 +44,7 @@ public class FileRecyclerAdapter extends RecyclerView.Adapter<FileRecyclerAdapte
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 //        System.out.println("parent " + ((MainActivity) parent.getRootView().getContext());
-        View view = LayoutInflater.from(parent.getContext())
+        view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.nav_item, parent, false);
 //        viewHolders = new ArrayList<>();
         return new ViewHolder(view);
@@ -73,8 +75,11 @@ public class FileRecyclerAdapter extends RecyclerView.Adapter<FileRecyclerAdapte
         }
 
         File f = new File(mValues.get(position).filePath);
-        if(f != null)
-            Picasso.get().load(f).resize(200,200).into(holder.imageView);
+        if(f != null) {
+           float elemSize = view.getResources().getDimension(R.dimen.list_element_height);
+           float size = elemSize - view.getResources().getDimension(R.dimen.list_element_image_margin);
+            Picasso.get().load(f).resize((int)size, (int)size).centerCrop().into(holder.imageView);
+        }
         else
             Picasso.get().invalidate(f);
     }
@@ -83,8 +88,8 @@ public class FileRecyclerAdapter extends RecyclerView.Adapter<FileRecyclerAdapte
         selectedIcon.clear();
     }
 
-    public static IconData[] getSelectedIcons() {
-        IconData[] array = new IconData[selectedIcon.size()];
+    public static ListElementData[] getSelectedIcons() {
+        ListElementData[] array = new ListElementData[selectedIcon.size()];
         selectedIcon.toArray(array);
         selectedIcon.clear();
         return array;
@@ -109,7 +114,7 @@ public class FileRecyclerAdapter extends RecyclerView.Adapter<FileRecyclerAdapte
         public final TextView mContentView;
         public final ImageView imageView;
         public final CheckBox checkBox;
-        public IconData mItem;
+        public ListElementData mItem;
 
         public ViewHolder(View view) {
             super(view);
@@ -117,7 +122,7 @@ public class FileRecyclerAdapter extends RecyclerView.Adapter<FileRecyclerAdapte
             mView.setOnClickListener(this);
 //            mIdView = (TextView) view.findViewById(R.id.item_number);
             mContentView = (TextView) view.findViewById(R.id.content);
-            imageView = (ImageView) view.findViewById(R.id.imageView);
+            imageView = (ImageView) view.findViewById(R.id.NavItemImageView);
             checkBox = (CheckBox) view.findViewById(R.id.checkBox);
 
         }

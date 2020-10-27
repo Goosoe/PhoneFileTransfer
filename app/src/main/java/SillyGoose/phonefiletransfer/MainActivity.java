@@ -17,7 +17,7 @@ import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 
 import FileNavigator.FileRecyclerAdapter;
-import FileNavigator.IconData;
+import FileNavigator.ListElementData;
 import Server.StartServerActivity;
 
 public class MainActivity extends AppCompatActivity{
@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity{
                //get fragment's selected files Strings
 
 //                String[] filesToUpload = ((NavigatorFragment) getFragmentManager().findFragmentById(R.id.navFrag)).getSelectedFiles();
-                IconData[] filesToUpload = FileRecyclerAdapter.getSelectedIcons();
+                ListElementData[] filesToUpload = FileRecyclerAdapter.getSelectedIcons();
 //                Fragment f = getFragmentManager().findFragmentById(R.id.navFrag).;
            
                 //.getSelectedFiles();

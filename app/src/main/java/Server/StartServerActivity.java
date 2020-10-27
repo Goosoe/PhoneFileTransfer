@@ -2,16 +2,13 @@ package Server;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.icu.util.ICUUncheckedIOException;
 import android.os.Bundle;
 import android.widget.TextView;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
-import FileNavigator.IconData;
+import FileNavigator.ListElementData;
 import SillyGoose.phonefiletransfer.R;
 
 public class StartServerActivity extends AppCompatActivity {
@@ -27,7 +24,7 @@ public class StartServerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_start_server);
 
 
-        IconData[] files = (IconData[]) getIntent().getSerializableExtra("IconData");
+        ListElementData[] files = (ListElementData[]) getIntent().getSerializableExtra("IconData");
 //        String message = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
 
 //        // Capture the layout's TextView and set the string as its text
