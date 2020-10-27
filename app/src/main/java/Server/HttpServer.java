@@ -36,7 +36,7 @@ public class HttpServer extends NanoHTTPD {
         try {
             FileOutputStream fos = new FileOutputStream(outputZipPath);
             ZipOutputStream zipOut = new ZipOutputStream(fos);
-            File f = null;
+            File f;
             for(String filePath : filesToSend){
                 f = new File(filePath);
                 Utils.zipFile(f, f.getName(), zipOut);
