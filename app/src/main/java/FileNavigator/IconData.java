@@ -1,5 +1,7 @@
 package FileNavigator;
 
+import java.io.Serializable;
+
 /**
  * Helper class for providing sample content for user interfaces created by
  * Android template wizards.
@@ -7,19 +9,16 @@ package FileNavigator;
  * TODO: Replace all uses of this class before publishing your app.
  */
 
-public class IconData {
+public class IconData implements Serializable {
     public final String id;
-    public final String content;
+    public final String fileName;
     public final String filePath;
 
-    public IconData(String id, String content, String filePath) {
+    public IconData(String id, String fileName, String filePath) {
         this.id = id;
-        this.content = content;
+        this.fileName = fileName;
         this.filePath = filePath;
     }
 
-    @Override
-    public String toString() {
-        return content;
-    }
+
 }

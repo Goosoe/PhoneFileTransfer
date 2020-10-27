@@ -5,6 +5,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -14,16 +15,18 @@ import com.squareup.picasso.Picasso;
 import SillyGoose.phonefiletransfer.R;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.List;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link IconData}.
  * TODO: Replace the implementation with code for your data type.
  */
-public class FileRecyclerAdapter extends RecyclerView.Adapter<FileRecyclerAdapter.ViewHolder> {
+public class FileRecyclerAdapter extends RecyclerView.Adapter<FileRecyclerAdapter.ViewHolder>{
 
     private final List<IconData> mValues;
     private static ClickListener clickListener;
+    private static HashSet<IconData> selectedIcon;
 
     public interface ClickListener {
         void onItemClick(int position, View v);
@@ -33,26 +36,58 @@ public class FileRecyclerAdapter extends RecyclerView.Adapter<FileRecyclerAdapte
 
     public FileRecyclerAdapter(List<IconData> items) {
         mValues = items;
+        selectedIcon = new HashSet<>();
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+//        System.out.println("parent " + ((MainActivity) parent.getRootView().getContext());
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.nav_item, parent, false);
+//        viewHolders = new ArrayList<>();
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
+//        viewHolders.add(holder);
         holder.mItem = mValues.get(position);
-        holder.mIdView.setText(mValues.get(position).id);
-//        holder.mContentView.setText(mValues.get(position).content);
-        System.out.println("bruh " + mValues.get(position).filePath);
+        holder.mContentView.setText(mValues.get(position).id);
+        holder.checkBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(((CheckBox)v).isChecked()){
+                    selectedIcon.add(holder.mItem);
+                }
+                else{
+                    selectedIcon.remove(holder.mItem);
+                }
+            }
+        });
+        if(mValues.get(position).id.equals(NavigatorFragment.BACK_SYMBOL)) {
+            holder.checkBox.setVisibility(View.INVISIBLE);
+        }
+        else{
+            holder.checkBox.setVisibility(View.VISIBLE);
+
+        }
+
         File f = new File(mValues.get(position).filePath);
         if(f != null)
             Picasso.get().load(f).resize(200,200).into(holder.imageView);
         else
             Picasso.get().invalidate(f);
+    }
+
+    public void clearSelectedFiles(){
+        selectedIcon.clear();
+    }
+
+    public static IconData[] getSelectedIcons() {
+        IconData[] array = new IconData[selectedIcon.size()];
+        selectedIcon.toArray(array);
+        selectedIcon.clear();
+        return array;
     }
 
     @Override
@@ -70,24 +105,26 @@ public class FileRecyclerAdapter extends RecyclerView.Adapter<FileRecyclerAdapte
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public final View mView;
-        public final TextView mIdView;
+//        public final TextView mIdView;
         public final TextView mContentView;
         public final ImageView imageView;
+        public final CheckBox checkBox;
         public IconData mItem;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
             mView.setOnClickListener(this);
-            mIdView = (TextView) view.findViewById(R.id.item_number);
+//            mIdView = (TextView) view.findViewById(R.id.item_number);
             mContentView = (TextView) view.findViewById(R.id.content);
             imageView = (ImageView) view.findViewById(R.id.imageView);
+            checkBox = (CheckBox) view.findViewById(R.id.checkBox);
 
         }
 
         @Override
         public String toString() {
-            return super.toString() + " '" + mContentView.getText() + "'";
+            return super.toString() + "" + mContentView.getText() + "";
         }
 
         @Override

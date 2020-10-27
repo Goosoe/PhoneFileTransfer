@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import Listener.IStartServerButtonListener;
 import Server.StartServerActivity;
 import SillyGoose.phonefiletransfer.R;
 //import FileNavigator.ListIcon.ListIcon;
@@ -27,7 +28,7 @@ import SillyGoose.phonefiletransfer.R;
 /**
  * A fragment representing a list of Items.
  */
-public class NavigatorFragment extends Fragment {
+public class NavigatorFragment extends Fragment{
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
@@ -37,7 +38,7 @@ public class NavigatorFragment extends Fragment {
     private List<IconData> iconDataList;
     private String currentPath;
     private FileRecyclerAdapter rAdapter;
-    private final static String BACK_SYMBOL = "<-";
+    public final static String BACK_SYMBOL = "<-";
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -60,7 +61,6 @@ public class NavigatorFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
@@ -71,9 +71,10 @@ public class NavigatorFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.nav_item_list, container, false);
-        updateListToGetFile(currentPath);
+        updatePath(currentPath);
         // Set the adapter
         if (view instanceof RecyclerView) {
+            view.setFocusable(false);
             Context context = view.getContext();
             RecyclerView recyclerView = (RecyclerView) view;
             if (mColumnCount <= 1) {
@@ -83,6 +84,7 @@ public class NavigatorFragment extends Fragment {
             }
             rAdapter = new FileRecyclerAdapter(iconDataList);
                       recyclerView.setAdapter(rAdapter);
+
 
             rAdapter.setOnItemClickListener(new FileRecyclerAdapter.ClickListener() {
             @Override
@@ -100,29 +102,32 @@ public class NavigatorFragment extends Fragment {
         return view;
     }
 
-    private void getFolder(int position) {
-        if(updateListToGetFile(iconDataList.get(position).id)) {
-            Intent serverStart = new Intent(getActivity(), StartServerActivity.class);
-            serverStart.putExtra("FilePath", currentPath.concat(File.separator).concat(iconDataList.get(position).id));
-            startActivity(serverStart);
-        }
-    }
+
+
+//    private void getFolder(int position) {
+//        if(updateListToGetFile(iconDataList.get(position).id)) {
+//            Intent serverStart = new Intent(getActivity(), StartServerActivity.class);
+//            serverStart.putExtra("FilePath", currentPath.concat(File.separator).concat(iconDataList.get(position).id));
+//            startActivity(serverStart);
+//        }
+//    }
 
 
     private void updateRecyclerView(int position, FileRecyclerAdapter adapter) {
-        if(updateListToGetFile(iconDataList.get(position).id)) {
-            Intent serverStart = new Intent(getActivity(), StartServerActivity.class);
-            serverStart.putExtra("FilePath", currentPath);
-            startActivity(serverStart);
-        }
-        else{
+        if(!updatePath(iconDataList.get(position).id)) {
+//            adapter.updateViews();
             adapter.notifyDataSetChanged();
         }
 
+
     }
 
-
-    private boolean updateListToGetFile(String fileName){
+    /**
+     * Updates the currentPath by checking the filename clicked on the list
+     * @param fileName
+     * @return
+     */
+    private boolean updatePath(String fileName){
 
         if(currentPath == null)
             currentPath = Environment.getExternalStorageDirectory().toString();
@@ -131,9 +136,15 @@ public class NavigatorFragment extends Fragment {
             if(fileName.equals(BACK_SYMBOL)) {
                 //removes the last /* to go back
                 currentPath = this.currentPath.replaceAll("^(.*)/.*?$", "$1");
+                rAdapter.clearSelectedFiles();
             }
-            else{
-                currentPath += File.separator + fileName;
+            else {
+                if(new File(currentPath + File.separator + fileName ).isDirectory()){
+                    currentPath += File.separator + fileName;
+                    rAdapter.clearSelectedFiles();
+                }
+                else
+                    return true;
             }
 //            System.out.println("DEBUG?: " + currentPath.concat(File.separator).concat(fileName));
 
@@ -149,9 +160,9 @@ public class NavigatorFragment extends Fragment {
         List<String> values = new LinkedList<>();
 
         File dir = new File(currentPath);
-        if(dir.isFile()){
-            return true;
-        }
+//        if(dir.isFile()){
+//            return true;
+//        }
         if (!dir.canRead()) {
             getActivity().setTitle(getActivity().getTitle() + " (inaccessible)");
         }
@@ -168,4 +179,5 @@ public class NavigatorFragment extends Fragment {
             iconDataList.add(new IconData(name, name, currentPath.concat(File.separator).concat(name)));
         return false;
     }
+
 }

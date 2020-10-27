@@ -2,13 +2,16 @@ package Server;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.icu.util.ICUUncheckedIOException;
 import android.os.Bundle;
 import android.widget.TextView;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import FileNavigator.IconData;
 import SillyGoose.phonefiletransfer.R;
 
 public class StartServerActivity extends AppCompatActivity {
@@ -24,8 +27,7 @@ public class StartServerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_start_server);
 
 
-        List<String> files = new ArrayList<String>();
-        files.add(getIntent().getStringExtra("FilePath"));
+        IconData[] files = (IconData[]) getIntent().getSerializableExtra("IconData");
 //        String message = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
 
 //        // Capture the layout's TextView and set the string as its text
@@ -36,13 +38,13 @@ public class StartServerActivity extends AppCompatActivity {
         TextView ipText = (TextView) findViewById(R.id.ipText);
         ipText.setText(ip + ":" + PORT);
         if(server == null) {
-            server = new HttpServer(ip, PORT, this, files);
+            server = new HttpServer(ip, PORT, this, Arrays.asList(files));
         }
-        try {
-            server.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            server.start();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     @Override
