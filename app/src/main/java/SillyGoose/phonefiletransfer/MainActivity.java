@@ -35,9 +35,21 @@ public class MainActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        
+        //Ask permissions
+        Dexter.withContext(this)
+                .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                .withListener(new PermissionListener() {
+                    @Override public void onPermissionGranted(PermissionGrantedResponse response) {
+                        Toast.makeText(getApplicationContext(),"Lets get started", Toast.LENGTH_LONG).show();
 
+                    }
+                    @Override public void onPermissionDenied(PermissionDeniedResponse response) {
+                        Toast.makeText(getApplicationContext(),"Bruh", Toast.LENGTH_LONG).show();
 
-
+                    }
+                    @Override public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {/* ... */}
+                }).check();
 
 
 
@@ -121,20 +133,7 @@ public class MainActivity extends AppCompatActivity{
             }
         });
 
-        //Ask permissions
-        Dexter.withContext(this)
-                .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-                .withListener(new PermissionListener() {
-                    @Override public void onPermissionGranted(PermissionGrantedResponse response) {
-                        Toast.makeText(getApplicationContext(),"Lets get started", Toast.LENGTH_LONG).show();
 
-                    }
-                    @Override public void onPermissionDenied(PermissionDeniedResponse response) {
-                        Toast.makeText(getApplicationContext(),"Bruh", Toast.LENGTH_LONG).show();
-
-                    }
-                    @Override public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {/* ... */}
-                }).check();
 
 
     }
