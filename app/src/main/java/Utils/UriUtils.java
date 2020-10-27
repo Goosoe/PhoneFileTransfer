@@ -16,6 +16,10 @@ import java.io.FileOutputStream;
 import android.provider.MediaStore;
 import android.util.Log;
 
+
+/**
+ * @author https://handyopinion.com/get-file-path-from-uri-in-android-java/
+ */
 public class UriUtils {
     private static Uri contentUri = null;
 

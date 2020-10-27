@@ -6,24 +6,38 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <fragment
-        android:id="@+id/navFrag"
-        android:name="FileNavigator.NavigatorFragment"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+    <TextView
+        android:id="@+id/informationText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/how_to_use"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@id/startButton"
-        app:layout_constraintTop_toBottomOf="@+id/startButton" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:gravity="center"
+        />
 
-    <Button
-        android:id="@+id/startButton"
-        android:layout_width="406dp"
-        android:layout_height="70dp"
-        android:layout_marginTop="16dp"
-        android:text="Start Server"
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="398dp"
+        android:layout_height="38dp"
+        android:text="@string/close_connection"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/button"
+        android:gravity="center"
+        />
 
+    <Button
+        android:id="@+id/button"
+        android:layout_width="143dp"
+        android:layout_height="73dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/close_connection_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:gravity="center"
+        />
 </androidx.constraintlayout.widget.ConstraintLayout>

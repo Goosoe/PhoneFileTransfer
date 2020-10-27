@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.zip.ZipOutputStream;
 
-import FileNavigator.ListElementData;
 import fi.iki.elonen.NanoHTTPD;
 
 public class HttpServer extends NanoHTTPD {

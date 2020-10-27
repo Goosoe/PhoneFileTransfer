@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">PhoneFileTransfer</string>
+
+    <string name="how_to_use">To use this app just use your preferred file navigator app (e.g. ES File Explorer) or gallery and select the files you want to share.
+        Afterwards, press the share button and select this App. This will prompt the start of the server and will provide an ip to connect.
+        Use a browser in the device you pretend to download the files and put that ip in the address bar.</string>
+
+    <string name="connect">Please insert in your browser address bar:\n %1$s </string>
+    <string name="close_connection">To close the connection just turn off the app or press the button.</string>
+    <string name="close_connection_button">Close Connection</string>
+
 </resources>
