@@ -39,7 +39,7 @@ public class HttpServer extends NanoHTTPD {
             File f;
             for(String filePath : filesToSend){
                 f = new File(filePath);
-                Utils.zipFile(f, f.getName(), zipOut);
+                Utils.zipFile(f, zipOut);
             }
             zipOut.close();
 

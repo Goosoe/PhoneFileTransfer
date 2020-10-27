@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PhoneFileTransfer</string>
+    <string name="app_name">File Transfer</string>
 
     <string name="how_to_use">To use this app just use your preferred file navigator app (e.g. ES File Explorer) or gallery and select the files you want to share.
         Afterwards, press the share button and select this App. This will prompt the start of the server and will provide an ip to connect.

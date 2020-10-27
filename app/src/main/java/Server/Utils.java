@@ -11,25 +11,26 @@ public class Utils {
 
 
 
-    public static void zipFile(File fileToZip, String fileName, ZipOutputStream zipOut) throws IOException {
+    public static void zipFile(File fileToZip, ZipOutputStream zipOut) throws IOException {
         if (fileToZip.isHidden()) {
             return;
         }
+        String filePath = fileToZip.getName();
         if (fileToZip.isDirectory()) {
-            if (fileName.endsWith("/")) {
-                zipOut.putNextEntry(new ZipEntry(fileName));
+            if (filePath.endsWith("/")) {
+                zipOut.putNextEntry(new ZipEntry(filePath));
             }
             else {
-                zipOut.putNextEntry(new ZipEntry(fileName + "/"));
+                zipOut.putNextEntry(new ZipEntry(filePath + "/"));
             }
             zipOut.closeEntry();
             for (File childFile : fileToZip.listFiles()) {
-                zipFile(childFile, fileName + "/" + childFile.getName(), zipOut);
+                zipFile(childFile, zipOut);
             }
             return;
         }
         FileInputStream fis = new FileInputStream(fileToZip);
-        ZipEntry zipEntry = new ZipEntry(fileName);
+        ZipEntry zipEntry = new ZipEntry(filePath);
         zipOut.putNextEntry(zipEntry);
         byte[] bytes = new byte[1024];
         int length;
