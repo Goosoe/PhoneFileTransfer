@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
+
         //Ask permissions
         Dexter.withContext(this)
                 .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -77,9 +77,9 @@ public class MainActivity extends AppCompatActivity{
             case Intent.ACTION_SEND_MULTIPLE:
                 ArrayList<Uri> uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
                 if (uris != null) {
-                   for (Uri fileUri : uris){
-                       filesPaths.add(UriUtils.getPathFromUri(this, fileUri));
-                   }
+                    for (Uri fileUri : uris){
+                        filesPaths.add(UriUtils.getPathFromUri(this, fileUri));
+                    }
 
                     String[] itemsArray = new String[filesPaths.size()];
                     itemsArray = filesPaths.toArray(itemsArray);
@@ -90,51 +90,25 @@ public class MainActivity extends AppCompatActivity{
 
 //            case Intent.ACTION_DEFAULT:
 //                break;
-
         }
         Button start = findViewById(R.id.startButton);
-
-//        if (Intent.ACTION_SEND.equals(action) && type != null) {
-//            if ("text/plain".equals(type)) {
-//                handleSendText(intent); // Handle text being sent
-//            } else if (type.startsWith("image/")) {
-//                handleSendImage(intent); // Handle single image being sent
-//            }
-//        } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
-//            if (type.startsWith("image/")) {
-//                handleSendMultipleImages(intent); // Handle multiple images being sent
-//            }
-//        } else {
-//            // Handle other intents, such as being started from the home screen
-//        }
-
-
-
-
-
-
-
-
         start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 //                findViewById(R.id.navFrag).findViewById(R.id.nab)
 
-               //get fragment's selected files Strings
+                //get fragment's selected files Strings
 
 //                String[] filesToUpload = ((NavigatorFragment) getFragmentManager().findFragmentById(R.id.navFrag)).getSelectedFiles();
-               startServer(FileRecyclerAdapter.getSelectedIcons(), v.getContext());
+                startServer(FileRecyclerAdapter.getSelectedIcons(), v.getContext());
 //                Fragment f = getFragmentManager().findFragmentById(R.id.navFrag).;
-           
+
                 //.getSelectedFiles();
                 //getSelected
                 //startServer
 
             }
         });
-
-
-
 
     }
 
