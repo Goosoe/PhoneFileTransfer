@@ -6,7 +6,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
+import java.util.Timer;
+import java.util.UUID;
 import java.util.zip.ZipOutputStream;
 
 import fi.iki.elonen.NanoHTTPD;
@@ -14,7 +17,7 @@ import fi.iki.elonen.NanoHTTPD;
 public class HttpServer extends NanoHTTPD {
     private final Context context;
     private List<String> filesToSend;
-    private static final String outputName = "out.zip";
+    private String outputName = "out.zip";
     public HttpServer(String ip , int port, Context context, List<String> filesToSend) {
         super(ip,port);
         this.context = context;
@@ -27,8 +30,7 @@ public class HttpServer extends NanoHTTPD {
     }
     @Override
     public Response serve(IHTTPSession session) {
-//        File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
-//        File dir = new File(filesToSend.get(0));
+        outputName = UUID.randomUUID().toString().concat(".zip");
         String outputZipPath = context.getCacheDir() + File.separator + outputName;
 
         try {
