@@ -3,10 +3,13 @@ package SillyGoose.phonefiletransfer;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.karumi.dexter.Dexter;
@@ -16,9 +19,13 @@ import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+
 import FileNavigator.FileRecyclerAdapter;
 import FileNavigator.ListElementData;
 import Server.StartServerActivity;
+import Utils.UriUtils;
 
 public class MainActivity extends AppCompatActivity{
 
@@ -28,7 +35,73 @@ public class MainActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Button start = (Button) findViewById(R.id.startButton);
+
+
+
+
+
+
+        Intent intent = getIntent();
+        String action = intent.getAction();
+        String type = intent.getType();
+
+        LinkedList<String> filesPaths = new LinkedList<>();
+        switch(action){
+            case Intent.ACTION_SEND:
+                Uri uri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+
+                if (uri != null) {
+
+                    filesPaths.add(UriUtils.getPathFromUri(this,uri));
+
+                    String[] itemsArray = new String[filesPaths.size()];
+                    itemsArray = filesPaths.toArray(itemsArray);
+                    startServer(itemsArray, this);
+
+                    // Update UI to reflect multiple images being shared
+                }
+                break;
+
+            case Intent.ACTION_SEND_MULTIPLE:
+                ArrayList<Uri> uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+                if (uris != null) {
+                   for (Uri fileUri : uris){
+                       filesPaths.add(UriUtils.getPathFromUri(this, fileUri));
+                   }
+
+                    String[] itemsArray = new String[filesPaths.size()];
+                    itemsArray = filesPaths.toArray(itemsArray);
+                    startServer(itemsArray, this);
+                    // Update UI to reflect multiple images being shared
+                }
+                break;
+
+//            case Intent.ACTION_DEFAULT:
+//                break;
+
+        }
+        Button start = findViewById(R.id.startButton);
+
+//        if (Intent.ACTION_SEND.equals(action) && type != null) {
+//            if ("text/plain".equals(type)) {
+//                handleSendText(intent); // Handle text being sent
+//            } else if (type.startsWith("image/")) {
+//                handleSendImage(intent); // Handle single image being sent
+//            }
+//        } else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && type != null) {
+//            if (type.startsWith("image/")) {
+//                handleSendMultipleImages(intent); // Handle multiple images being sent
+//            }
+//        } else {
+//            // Handle other intents, such as being started from the home screen
+//        }
+
+
+
+
+
+
+
 
         start.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -38,20 +111,13 @@ public class MainActivity extends AppCompatActivity{
                //get fragment's selected files Strings
 
 //                String[] filesToUpload = ((NavigatorFragment) getFragmentManager().findFragmentById(R.id.navFrag)).getSelectedFiles();
-                ListElementData[] filesToUpload = FileRecyclerAdapter.getSelectedIcons();
+               startServer(FileRecyclerAdapter.getSelectedIcons(), v.getContext());
 //                Fragment f = getFragmentManager().findFragmentById(R.id.navFrag).;
            
                 //.getSelectedFiles();
                 //getSelected
                 //startServer
-                if(filesToUpload.length > 0 ) {
-                    Intent serverStart = new Intent(v.getContext(), StartServerActivity.class);
-                    serverStart.putExtra("IconData", filesToUpload);
-                    startActivity(serverStart);
-                }
-                else {
-                   Toast.makeText(getApplicationContext(),"You don't have any files chosen to send", Toast.LENGTH_LONG).show();
-                }
+
             }
         });
 
@@ -73,6 +139,40 @@ public class MainActivity extends AppCompatActivity{
 
     }
 
+    private void startServer(String[] filesToUpload, Context c) {
+        if(filesToUpload.length > 0 ) {
+            Intent serverStart = new Intent(c, StartServerActivity.class);
+            serverStart.putExtra("filePaths", filesToUpload);
+            startActivity(serverStart);
+        }
+        else {
+            Toast.makeText(getApplicationContext(),"You don't have any files chosen to send", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    void handleSendText(Intent intent) {
+        String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
+        if (sharedText != null) {
+            System.out.println("Got text");
+            // Update UI to reflect text being shared
+        }
+    }
+
+    void handleSendImage(Intent intent) {
+        Uri imageUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+        if (imageUri != null) {
+            System.out.println("Got image");
+            // Update UI to reflect image being shared
+        }
+    }
+
+    void handleSendMultipleImages(Intent intent) {
+        ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+        if (imageUris != null) {
+            System.out.println("Got images");
+            // Update UI to reflect multiple images being shared
+        }
+    }
 //    public String[] getSelectedFiles(){
 //        ArrayList<String> paths = new ArrayList<>();
 //        for(FileRecyclerAdapter.ViewHolder v : FileRecyclerAdapter.viewHolders){
@@ -83,10 +183,7 @@ public class MainActivity extends AppCompatActivity{
 //        String[] result = new String[paths.size()];
 //        return paths.toArray(result);
 //
-//    }
-public String bruh(){
-    return "coconut";
-}
+
     //    @Override
 //    protected void onPause() {
 //        super.onPause();
@@ -95,6 +192,7 @@ public String bruh(){
     @Override
     protected void onResume() {
         super.onResume();
+
     }
 
 }

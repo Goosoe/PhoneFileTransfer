@@ -24,7 +24,7 @@ public class StartServerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_start_server);
 
 
-        ListElementData[] files = (ListElementData[]) getIntent().getSerializableExtra("IconData");
+        String[] files = (String[]) getIntent().getSerializableExtra("filePaths");
 //        String message = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
 
 //        // Capture the layout's TextView and set the string as its text

@@ -35,6 +35,8 @@ public class NavigatorFragment extends Fragment{
     private List<ListElementData> listElementDataList;
     private String currentPath;
     private FileRecyclerAdapter rAdapter;
+    private static int currentExternalStorage = 0;
+
     public final static String BACK_SYMBOL = "<-";
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -80,21 +82,21 @@ public class NavigatorFragment extends Fragment{
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
             rAdapter = new FileRecyclerAdapter(listElementDataList);
-                      recyclerView.setAdapter(rAdapter);
+            recyclerView.setAdapter(rAdapter);
 
 
             rAdapter.setOnItemClickListener(new FileRecyclerAdapter.ClickListener() {
-            @Override
-            public void onItemClick(int position, View v) {
-                updateRecyclerView(position, rAdapter);
-            }
+                @Override
+                public void onItemClick(int position, View v) {
+                    updateRecyclerView(position);
+                }
 //
 //            @Override
 //            public void onItemLongClick(int position, View v) {
 //                getFolder(position);
 //            }
 
-        });
+            });
         }
         return view;
     }
@@ -110,10 +112,9 @@ public class NavigatorFragment extends Fragment{
 //    }
 
 
-    private void updateRecyclerView(int position, FileRecyclerAdapter adapter) {
-        if(!updatePath(listElementDataList.get(position).id)) {
-//            adapter.updateViews();
-            adapter.notifyDataSetChanged();
+    private void updateRecyclerView(int position) {
+        if(!updatePath(listElementDataList.get(position).fileName)) {
+            rAdapter.notifyDataSetChanged();
         }
 
 
@@ -128,14 +129,14 @@ public class NavigatorFragment extends Fragment{
 
         if(currentPath == null)
             currentPath = Environment.getExternalStorageDirectory().toString();
-
         if(fileName != null){
             if(fileName.equals(BACK_SYMBOL)) {
                 //removes the last /* to go back
                 currentPath = this.currentPath.replaceAll("^(.*)/.*?$", "$1");
                 rAdapter.clearSelectedFiles();
             }
-            else {
+
+            else{
                 if(new File(currentPath + File.separator + fileName ).isDirectory()){
                     currentPath += File.separator + fileName;
                     rAdapter.clearSelectedFiles();
@@ -150,8 +151,13 @@ public class NavigatorFragment extends Fragment{
 
         getActivity().setTitle(currentPath);
         listElementDataList.clear();
-        if(currentPath.length() > Environment.getExternalStorageDirectory().toString().length())
-            listElementDataList.add(new ListElementData(BACK_SYMBOL,BACK_SYMBOL,""));
+        String rootPath = Environment.getExternalStorageDirectory().getPath();
+        if(currentPath.length() > rootPath.length()) {
+            listElementDataList.add(new ListElementData(BACK_SYMBOL, ""));
+        }
+
+//        listElementDataList.add(new ListElementData("Switch to SD Card", rootPath.substring(0, rootPath.length() - 1).concat(switchExternalStorage())));
+
 
         // Read all files sorted into the values-array
         List<String> values = new LinkedList<>();
@@ -173,8 +179,20 @@ public class NavigatorFragment extends Fragment{
         }
         Collections.sort(values);
         for(String name : values)
-            listElementDataList.add(new ListElementData(name, name, currentPath.concat(File.separator).concat(name)));
+            listElementDataList.add(new ListElementData( name, currentPath.concat(File.separator).concat(name)));
         return false;
     }
 
+    private String switchExternalStorage() {
+        currentExternalStorage = (currentExternalStorage + 1) % 2;
+        return String.valueOf(currentExternalStorage);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        System.out.println("pause the coconut");
+        rAdapter.clearSelectedFiles();
+        rAdapter.notifyDataSetChanged();
+    }
 }

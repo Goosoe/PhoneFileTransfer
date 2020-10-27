@@ -27,7 +27,7 @@ public class FileRecyclerAdapter extends RecyclerView.Adapter<FileRecyclerAdapte
 
     private final List<ListElementData> mValues;
     private static ClickListener clickListener;
-    private static HashSet<ListElementData> selectedIcon;
+    private static HashSet<String> selectedIcon;
     private View view;
 
     public interface ClickListener {
@@ -54,19 +54,21 @@ public class FileRecyclerAdapter extends RecyclerView.Adapter<FileRecyclerAdapte
     public void onBindViewHolder(final ViewHolder holder, int position) {
 //        viewHolders.add(holder);
         holder.mItem = mValues.get(position);
-        holder.mContentView.setText(mValues.get(position).id);
+        holder.mContentView.setText(mValues.get(position).fileName);
         holder.checkBox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(((CheckBox)v).isChecked()){
-                    selectedIcon.add(holder.mItem);
+                    selectedIcon.add(holder.mItem.filePath);
                 }
                 else{
-                    selectedIcon.remove(holder.mItem);
+                    selectedIcon.remove(holder.mItem.filePath);
                 }
             }
         });
-        if(mValues.get(position).id.equals(NavigatorFragment.BACK_SYMBOL)) {
+        holder.checkBox.setChecked(selectedIcon.contains(holder.mItem.filePath));
+
+        if(mValues.get(position).fileName.equals(NavigatorFragment.BACK_SYMBOL)) {
             holder.checkBox.setVisibility(View.INVISIBLE);
         }
         else{
@@ -88,8 +90,8 @@ public class FileRecyclerAdapter extends RecyclerView.Adapter<FileRecyclerAdapte
         selectedIcon.clear();
     }
 
-    public static ListElementData[] getSelectedIcons() {
-        ListElementData[] array = new ListElementData[selectedIcon.size()];
+    public static String[] getSelectedIcons() {
+        String[] array = new String[selectedIcon.size()];
         selectedIcon.toArray(array);
         selectedIcon.clear();
         return array;

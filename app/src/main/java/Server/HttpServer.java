@@ -14,9 +14,9 @@ import fi.iki.elonen.NanoHTTPD;
 
 public class HttpServer extends NanoHTTPD {
     private final Context context;
-    private List<ListElementData> filesToSend;
+    private List<String> filesToSend;
     private static final String outputName = "out.zip";
-    public HttpServer(String ip , int port, Context context, List<ListElementData> filesToSend) {
+    public HttpServer(String ip , int port, Context context, List<String> filesToSend) {
         super(ip,port);
         this.context = context;
         this.filesToSend = filesToSend;
@@ -36,8 +36,8 @@ public class HttpServer extends NanoHTTPD {
             FileOutputStream fos = new FileOutputStream(outputZipPath);
             ZipOutputStream zipOut = new ZipOutputStream(fos);
             File f = null;
-            for(ListElementData iconD : filesToSend){
-                f = new File(iconD.filePath);
+            for(String filePath : filesToSend){
+                f = new File(filePath);
                 Utils.zipFile(f, f.getName(), zipOut);
             }
             zipOut.close();

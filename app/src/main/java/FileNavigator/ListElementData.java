@@ -10,12 +10,12 @@ import java.io.Serializable;
  */
 
 public class ListElementData implements Serializable {
-    public final String id;
+//    public final String id;
     public final String fileName;
     public final String filePath;
 
-    public ListElementData(String id, String fileName, String filePath) {
-        this.id = id;
+    public ListElementData(String fileName, String filePath) {
+//        this.id = id;
         this.fileName = fileName;
         this.filePath = filePath;
     }
