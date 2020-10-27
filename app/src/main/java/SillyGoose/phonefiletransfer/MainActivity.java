@@ -50,8 +50,7 @@ public class MainActivity extends AppCompatActivity{
                     startActivity(serverStart);
                 }
                 else {
-                    Toast warning = Toast.makeText(getApplicationContext(),"You don't have any files chosen to send", Toast.LENGTH_LONG);
-                    warning.show();
+                   Toast.makeText(getApplicationContext(),"You don't have any files chosen to send", Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -60,8 +59,14 @@ public class MainActivity extends AppCompatActivity{
         Dexter.withContext(this)
                 .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
                 .withListener(new PermissionListener() {
-                    @Override public void onPermissionGranted(PermissionGrantedResponse response) { }
-                    @Override public void onPermissionDenied(PermissionDeniedResponse response) {/* ... */}
+                    @Override public void onPermissionGranted(PermissionGrantedResponse response) {
+                        Toast.makeText(getApplicationContext(),"Lets get started", Toast.LENGTH_LONG).show();
+
+                    }
+                    @Override public void onPermissionDenied(PermissionDeniedResponse response) {
+                        Toast.makeText(getApplicationContext(),"Bruh", Toast.LENGTH_LONG).show();
+
+                    }
                     @Override public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {/* ... */}
                 }).check();
 
