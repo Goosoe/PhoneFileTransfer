@@ -43,7 +43,9 @@ public class MainActivity extends AppCompatActivity{
         this.findViewById(R.id.textView2).setVisibility(View.INVISIBLE);
 
         askForPermissions();
-        checkReceivedIntent();
+        String[] uris = checkReceivedIntent();
+        if(uris != null)
+            startServer(uris);
 
     }
 
@@ -82,7 +84,11 @@ public class MainActivity extends AppCompatActivity{
                 }).check();
     }
 
-    public void checkReceivedIntent() {
+    /**
+     * This function checks for received intents from navigator apps which have the URI's of the desired files to send
+     * @return a String[] of the URI's to send or null if error/none
+     */
+    public  String[]  checkReceivedIntent() {
         Intent intent = getIntent();
         String action = intent.getAction();
         LinkedList<String> filesPaths = new LinkedList<>();
@@ -103,9 +109,10 @@ public class MainActivity extends AppCompatActivity{
                 filesPaths.add(UriUtils.getPathFromUri(this, fileUri));
             }
             String[] itemsArray = new String[filesPaths.size()];
-            itemsArray = filesPaths.toArray(itemsArray);
-            startServer(itemsArray);
+            return filesPaths.toArray(itemsArray);
+
         }
+        return null;
     }
 
     @Override
