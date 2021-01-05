@@ -57,6 +57,7 @@ public class HttpServer extends NanoHTTPD {
                     if(session.getParameters().containsKey(downloadButtonVal)){
                         NanoHTTPD.Response res = newFixedLengthResponse (Response.Status.OK, "application/zip", fis, zippedFile.length());
                         res.addHeader("Content-Disposition", "attachment; filename=\"" + outputName+ "\"");
+                        return res;
                     }
                     else {
 //                        String info = "";
@@ -75,14 +76,14 @@ public class HttpServer extends NanoHTTPD {
                 default:
                     return newFixedLengthResponse("Whoops, something went wrong :(");
             }
-            if(session.getMethod()  == Method.GET){
-
-            }
-
-            //default response
-            NanoHTTPD.Response res = newFixedLengthResponse (Response.Status.OK, "application/zip", fis, zippedFile.length());
-            res.addHeader("Content-Disposition", "attachment; filename=\"" + outputName+ "\"");
-            return res;
+//            if(session.getMethod()  == Method.GET){
+//
+//            }
+//
+//            //default response
+//            NanoHTTPD.Response res = newFixedLengthResponse (Response.Status.OK, "application/zip", fis, zippedFile.length());
+//            res.addHeader("Content-Disposition", "attachment; filename=\"" + outputName+ "\"");
+//            return res;
 
         } catch (IOException e) {
             e.printStackTrace();
