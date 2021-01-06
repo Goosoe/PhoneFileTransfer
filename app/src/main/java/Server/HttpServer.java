@@ -1,6 +1,7 @@
 package Server;
 
 import android.content.Context;
+import android.se.omapi.Session;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,45 +38,46 @@ public class HttpServer extends NanoHTTPD {
         outputName = UUID.randomUUID().toString().concat(".zip");
         String outputZipPath = context.getCacheDir() + File.separator + outputName;
 
-        //TODO: Do I want to zip the files instantly?
-        try {
-            FileOutputStream fos = new FileOutputStream(outputZipPath);
-            ZipOutputStream zipOut = new ZipOutputStream(fos);
-            File f;
-            for(String filePath : filesToSend){
-                f = new File(filePath);
-                Utils.zipFile(f, zipOut);
-            }
-            zipOut.close();
 
-            File zippedFile = new File(outputZipPath);
-            FileInputStream fis = new FileInputStream(zippedFile);
-            //show html file
+        switch (session.getMethod()){
+            case GET:
+                if(downloadButtonPressed(session)){
+                    try {
+                        FileOutputStream fos = new FileOutputStream(outputZipPath);
+                        ZipOutputStream zipOut = new ZipOutputStream(fos);
+                        File f;
+                        for (String filePath : filesToSend) {
+                            f = new File(filePath);
+                            Utils.zipFile(f, zipOut);
+                        }
+                        zipOut.close();
 
-            switch (session.getMethod()){
-                case GET:
-                    if(session.getParameters().containsKey(downloadButtonVal)){
-                        NanoHTTPD.Response res = newFixedLengthResponse (Response.Status.OK, "application/zip", fis, zippedFile.length());
-                        res.addHeader("Content-Disposition", "attachment; filename=\"" + outputName+ "\"");
+                        File zippedFile = new File(outputZipPath);
+                        FileInputStream fis = new FileInputStream(zippedFile);
+
+                        NanoHTTPD.Response res = newFixedLengthResponse(Response.Status.OK, "application/zip", fis, zippedFile.length());
+                        res.addHeader("Content-Disposition", "attachment; filename=\"" + outputName + "\"");
                         return res;
-                    }
-                    else {
-//                        String info = "";
-//                        for (String s : session.getParameters().keySet())
-//                            info = info.concat(s).concat("\n");
 
-                        final String html = "<html> <p> Connection found from local device: " + ip + "</p>\n" +
-                                "<p>Number of files to download: " + filesToSend.size() +"</p>\n" +
-                                "<form action=\"\" method=\"get\"><button name=\"" + downloadButtonVal + "\">Get Files</button></form>" +
-//                                info +
-                                "</html>";
-                        return newFixedLengthResponse(Response.Status.OK, MIME_HTML, html);
+                    } catch (IOException e) {
+                        //does nothing
                     }
-                case POST:
-                    break;
-                default:
-                    return newFixedLengthResponse("Whoops, something went wrong :(");
-            }
+                }
+                else {
+//
+                    //TODO: interesting string here. Should I make a html creator or just leave this beast here?
+                    final String html = "<html> <p> Connection from local device: " + android.os.Build.MODEL + "</p>\n" +
+                            "<p>Number of files to download: " + filesToSend.size() +"</p>\n" +
+                            "<form action=\"\" method=\"get\"><button name=\"" + downloadButtonVal + "\">Get Files</button></form>" +
+//                                info +
+                            "</html>";
+                    return newFixedLengthResponse(html);
+                }
+            case POST:
+                break;
+            default:
+                return newFixedLengthResponse("Whoops, something went wrong :(");
+        }
 //            if(session.getMethod()  == Method.GET){
 //
 //            }
@@ -85,13 +87,11 @@ public class HttpServer extends NanoHTTPD {
 //            res.addHeader("Content-Disposition", "attachment; filename=\"" + outputName+ "\"");
 //            return res;
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-
         return  newFixedLengthResponse("Something went wrong :(");
+    }
+
+    private boolean downloadButtonPressed(IHTTPSession session){
+        return session.getParameters().containsKey(downloadButtonVal);
     }
 
 
