@@ -13,13 +13,13 @@ import org.apache.commons.compress.parallel.InputStreamSupplier;
 
 public class Utils {
 
-    public static File zipFiles(List<String> uris, String outputZipPath){
+    public static File zipFiles(List<String> paths, String outputZipPath){
 
         ZipArchiveOutputStream outputStream = null;
         ParallelScatterZipCreator zipCreator = new ParallelScatterZipCreator();
 
-        for(String uri : uris) {
-            File f = new File(uri);
+        for(String path : paths) {
+            File f = new File(path);
             InputStreamSupplier supp = new InputStreamSupplier() {
                 @Override
                 public InputStream get() {

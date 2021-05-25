@@ -51,7 +51,6 @@ public class HttpServer extends NanoHTTPD {
                         File zippedFile = Utils.zipFiles(filesToSend, outputZipPath);
                         if(zippedFile == null)
                             return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "Error sending the selected files or no files were selected for transfer");
-
                         FileInputStream fis = new FileInputStream(zippedFile);
                         NanoHTTPD.Response res = newFixedLengthResponse(Response.Status.OK, "application/zip", fis, zippedFile.length());
                         res.addHeader("Content-Disposition", "attachment; filename=\"" + outputName + "\"");

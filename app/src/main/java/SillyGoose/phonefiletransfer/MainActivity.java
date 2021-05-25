@@ -1,7 +1,5 @@
 package SillyGoose.phonefiletransfer;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.Manifest;
 import android.content.Intent;
 import android.net.Uri;
@@ -11,13 +9,14 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionDeniedResponse;
 import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
-
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -58,6 +57,7 @@ public class MainActivity extends AppCompatActivity{
         String action = intent.getAction();
         LinkedList<String> filesPaths = new LinkedList<>();
         ArrayList<Uri> uris = null;
+
         switch (action) {
             case Intent.ACTION_SEND:
                 uris = new ArrayList<>();
@@ -68,10 +68,10 @@ public class MainActivity extends AppCompatActivity{
                 break;
 
         }
-
+        UriUtils uriUtils = new UriUtils(this.getBaseContext());
         if (uris != null) {
             for (Uri fileUri : uris) {
-                filesPaths.add(UriUtils.getPathFromUri(this, fileUri));
+                filesPaths.add(uriUtils.getPath(fileUri));
             }
             String[] itemsArray = new String[filesPaths.size()];
             return filesPaths.toArray(itemsArray);
@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity{
         b.setOnClickListener(v -> super.finish());
 
     }
-
+    
     private void askForPermissions(){
         Dexter.withContext(this)
                 .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
