@@ -1,29 +1,13 @@
 # README #
 
-This README would normally document whatever steps are necessary to get your application up and running.
-
-### What is this repository for? ###
-
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
-
-### How do I get set up? ###
-
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
-
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+This simple app uses the built in android navigators to select files and shares by creating a local http server.
+# Goals
+- [x]  Multi-thread zipping
+- [ ]  Make phone accept connections before handling files
+- [ ]  Choose .zip format (zip or 7z)
+- [ ]  Receive files
+- [ ]  Safe connection
+- [ ]  use temp files
+- [ ]  Check if file is already a .zip or any other zipped extensions
+- [ ]  Reopen last zip sent if possible
+- [ ]  Sd card reading error
