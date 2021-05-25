@@ -17,9 +17,9 @@ import fi.iki.elonen.NanoHTTPD;
 
 public class HttpServer extends NanoHTTPD {
     private final Context context;
-    private List<String> filesToSend;
-    private String outputName = "out.zip";
-    private String ip;
+    private final List<String> filesToSend;
+//    private static final String outputName = "out.zip";
+    private final String ip;
     private String downloadButtonVal = "download";
 
     public HttpServer(String ip , int port, Context context, List<String> filesToSend) {
@@ -35,26 +35,27 @@ public class HttpServer extends NanoHTTPD {
     }
     @Override
     public Response serve(IHTTPSession session) {
-        outputName = UUID.randomUUID().toString().concat(".zip");
+        String outputName = UUID.randomUUID().toString().concat(".zip");
         String outputZipPath = context.getCacheDir() + File.separator + outputName;
-
 
         switch (session.getMethod()){
             case GET:
                 if(downloadButtonPressed(session)){
                     try {
-                        FileOutputStream fos = new FileOutputStream(outputZipPath);
-                        ZipOutputStream zipOut = new ZipOutputStream(fos);
-                        File f;
-                        for (String filePath : filesToSend) {
-                            f = new File(filePath);
-                            Utils.zipFile(f, zipOut);
-                        }
-                        zipOut.close();
+//                        FileOutputStream fos = new FileOutputStream(outputZipPath);
+//                        ZipOutputStream zipOut = new ZipOutputStream(fos);
+//                        File f;
+//                        for (String filePath : filesToSend) {
+//                            f = new File(filePath);
+//                            Utils.zipFile(f, zipOut);
+//                        }
+//                        zipOut.close();
 
-                        File zippedFile = new File(outputZipPath);
+                        File zippedFile = Utils.zipFiles(filesToSend, outputZipPath);
+                        if(zippedFile == null)
+                            return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "Error sending the selected files or no files were selected for transfer");
+
                         FileInputStream fis = new FileInputStream(zippedFile);
-
                         NanoHTTPD.Response res = newFixedLengthResponse(Response.Status.OK, "application/zip", fis, zippedFile.length());
                         res.addHeader("Content-Disposition", "attachment; filename=\"" + outputName + "\"");
                         return res;

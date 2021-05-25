@@ -1,15 +1,64 @@
 package Server;
 
 
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.compress.archivers.zip.ParallelScatterZipCreator;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntryRequest;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntryRequestSupplier;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.compress.parallel.InputStreamSupplier;
+
 public class Utils {
 
+    public static File zipFiles(List<String> uris, String outputZipPath){
 
+        ZipArchiveOutputStream outputStream = null;
+        ParallelScatterZipCreator zipCreator = new ParallelScatterZipCreator();
+
+        for(String uri : uris) {
+            File f = new File(uri);
+            InputStreamSupplier supp = new InputStreamSupplier() {
+                @Override
+                public InputStream get() {
+                    try {
+                        return new FileInputStream(f);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    return  null;
+                }
+            };
+
+            zipCreator.addArchiveEntry(new ZipArchiveEntryRequestSupplier() {
+                @Override
+                public ZipArchiveEntryRequest get() {
+                    ZipArchiveEntry entry = new ZipArchiveEntry(f, f.getName());
+                    entry.setMethod(ZipArchiveOutputStream.DEFAULT_COMPRESSION);
+                    return ZipArchiveEntryRequest.createZipArchiveEntryRequest(entry, supp);
+                }
+            });
+        }
+        try {
+            File outputFile = new File(outputZipPath);
+            outputStream = new ZipArchiveOutputStream(outputFile);
+//            outputStream.setMethod(ZipArchiveOutputStream.DEFAULT_COMPRESSION);
+            zipCreator.writeTo(outputStream);
+            outputStream.finish();
+            return outputFile;
+        } catch (IOException | InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 
     public static void zipFile(File fileToZip, ZipOutputStream zipOut) throws IOException {
         if (fileToZip.isHidden()) {

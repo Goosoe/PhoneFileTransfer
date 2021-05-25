@@ -43,5 +43,5 @@ dependencies {
     implementation 'com.karumi:dexter:6.2.1'
     implementation 'net.lingala.zip4j:zip4j:2.6.4'
     implementation 'com.squareup.picasso:picasso:2.71828'
-
+    implementation group: 'org.apache.commons', name: 'commons-compress', version: '1.20'
 }

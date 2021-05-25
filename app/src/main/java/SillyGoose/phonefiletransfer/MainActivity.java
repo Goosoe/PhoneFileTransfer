@@ -49,41 +49,6 @@ public class MainActivity extends AppCompatActivity{
 
     }
 
-    private void startServer(String[] filesToUpload) {
-        if(filesToUpload.length > 0 ) {
-            ip = Utils.getIPAddress(true);
-            TextView ipText = findViewById(R.id.informationText);
-            ipText.setText(getString(R.string.connect, ip.concat(":").concat(String.valueOf(PORT))));
-
-            if(server == null) {
-                server = new HttpServer(ip, PORT, this, Arrays.asList(filesToUpload));
-            }
-            Button b = this.findViewById(R.id.button);
-            b.setVisibility(View.VISIBLE);
-            this.findViewById(R.id.textView2).setVisibility(View.VISIBLE);
-            b.setOnClickListener(v -> super.finish());
-        }
-        else {
-            Toast.makeText(getApplicationContext(),"You don't have any files chosen to send", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    private void askForPermissions(){
-        Dexter.withContext(this)
-                .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-                .withListener(new PermissionListener() {
-                    @Override public void onPermissionGranted(PermissionGrantedResponse response) {
-
-                    }
-                    @Override public void onPermissionDenied(PermissionDeniedResponse response) {
-                        Toast.makeText(getApplicationContext(),"Please allow access permissions, otherwise the app won't work", Toast.LENGTH_LONG).show();
-
-                    }
-                    @Override public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {
-                        Toast.makeText(getApplicationContext(),"Please allow access permissions, otherwise the app won't work", Toast.LENGTH_LONG).show();}
-                }).check();
-    }
-
     /**
      * This function checks for received intents from navigator apps which have the URI's of the desired files to send
      * @return a String[] of the URI's to send or null if error/none
@@ -133,5 +98,40 @@ public class MainActivity extends AppCompatActivity{
                 e.printStackTrace();
             }
         }
+    }
+
+    private void startServer(String[] filesToUpload) {
+        if(filesToUpload.length < 1 ) {
+            Toast.makeText(getApplicationContext(), "You don't have any files chosen to send", Toast.LENGTH_LONG).show();
+            return;
+        }
+        ip = Utils.getIPAddress(true);
+        TextView ipText = findViewById(R.id.informationText);
+        ipText.setText(getString(R.string.connect, ip.concat(":").concat(String.valueOf(PORT))));
+
+        if(server == null) {
+            server = new HttpServer(ip, PORT, this, Arrays.asList(filesToUpload));
+        }
+        Button b = this.findViewById(R.id.button);
+        b.setVisibility(View.VISIBLE);
+        this.findViewById(R.id.textView2).setVisibility(View.VISIBLE);
+        b.setOnClickListener(v -> super.finish());
+
+    }
+
+    private void askForPermissions(){
+        Dexter.withContext(this)
+                .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                .withListener(new PermissionListener() {
+                    @Override public void onPermissionGranted(PermissionGrantedResponse response) {
+
+                    }
+                    @Override public void onPermissionDenied(PermissionDeniedResponse response) {
+                        Toast.makeText(getApplicationContext(),"Please allow access permissions, otherwise the app won't work", Toast.LENGTH_LONG).show();
+
+                    }
+                    @Override public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {
+                        Toast.makeText(getApplicationContext(),"Please allow access permissions, otherwise the app won't work", Toast.LENGTH_LONG).show();}
+                }).check();
     }
 }
