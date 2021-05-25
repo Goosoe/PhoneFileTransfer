@@ -1,14 +1,9 @@
 package Server;
 
-
-
 import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
 import org.apache.commons.compress.archivers.zip.ParallelScatterZipCreator;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryRequest;
@@ -41,7 +36,7 @@ public class Utils {
                 @Override
                 public ZipArchiveEntryRequest get() {
                     ZipArchiveEntry entry = new ZipArchiveEntry(f, f.getName());
-                    entry.setMethod(ZipArchiveOutputStream.DEFAULT_COMPRESSION);
+                    entry.setMethod(ZipArchiveOutputStream.STORED);
                     return ZipArchiveEntryRequest.createZipArchiveEntryRequest(entry, supp);
                 }
             });
@@ -49,7 +44,6 @@ public class Utils {
         try {
             File outputFile = new File(outputZipPath);
             outputStream = new ZipArchiveOutputStream(outputFile);
-//            outputStream.setMethod(ZipArchiveOutputStream.DEFAULT_COMPRESSION);
             zipCreator.writeTo(outputStream);
             outputStream.finish();
             return outputFile;
@@ -60,34 +54,6 @@ public class Utils {
         return null;
     }
 
-    public static void zipFile(File fileToZip, ZipOutputStream zipOut) throws IOException {
-        if (fileToZip.isHidden()) {
-            return;
-        }
-        String filePath = fileToZip.getName();
-        if (fileToZip.isDirectory()) {
-            if (filePath.endsWith("/")) {
-                zipOut.putNextEntry(new ZipEntry(filePath));
-            }
-            else {
-                zipOut.putNextEntry(new ZipEntry(filePath + "/"));
-            }
-            zipOut.closeEntry();
-            for (File childFile : fileToZip.listFiles()) {
-                zipFile(childFile, zipOut);
-            }
-            return;
-        }
-        FileInputStream fis = new FileInputStream(fileToZip);
-        ZipEntry zipEntry = new ZipEntry(filePath);
-        zipOut.putNextEntry(zipEntry);
-        byte[] bytes = new byte[1024];
-        int length;
-        while ((length = fis.read(bytes)) >= 0) {
-            zipOut.write(bytes, 0, length);
-        }
-        fis.close();
-    }
     /**
      * Get IP address from first non-localhost interface
      * @param useIPv4   true=return ipv4, false=return ipv6
