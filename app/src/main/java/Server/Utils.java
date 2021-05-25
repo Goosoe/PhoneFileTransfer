@@ -1,44 +1,59 @@
 package Server;
 
-
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+import java.util.concurrent.ExecutionException;
+import org.apache.commons.compress.archivers.zip.ParallelScatterZipCreator;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntryRequest;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntryRequestSupplier;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.compress.parallel.InputStreamSupplier;
 
 public class Utils {
 
+    public static File zipFiles(List<String> paths, String outputZipPath){
 
+        ZipArchiveOutputStream outputStream = null;
+        ParallelScatterZipCreator zipCreator = new ParallelScatterZipCreator();
 
-    public static void zipFile(File fileToZip, ZipOutputStream zipOut) throws IOException {
-        if (fileToZip.isHidden()) {
-            return;
+        for(String path : paths) {
+            File f = new File(path);
+            InputStreamSupplier supp = new InputStreamSupplier() {
+                @Override
+                public InputStream get() {
+                    try {
+                        return new FileInputStream(f);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    return  null;
+                }
+            };
+
+            zipCreator.addArchiveEntry(new ZipArchiveEntryRequestSupplier() {
+                @Override
+                public ZipArchiveEntryRequest get() {
+                    ZipArchiveEntry entry = new ZipArchiveEntry(f, f.getName());
+                    entry.setMethod(ZipArchiveOutputStream.STORED);
+                    return ZipArchiveEntryRequest.createZipArchiveEntryRequest(entry, supp);
+                }
+            });
         }
-        String filePath = fileToZip.getName();
-        if (fileToZip.isDirectory()) {
-            if (filePath.endsWith("/")) {
-                zipOut.putNextEntry(new ZipEntry(filePath));
-            }
-            else {
-                zipOut.putNextEntry(new ZipEntry(filePath + "/"));
-            }
-            zipOut.closeEntry();
-            for (File childFile : fileToZip.listFiles()) {
-                zipFile(childFile, zipOut);
-            }
-            return;
+        try {
+            File outputFile = new File(outputZipPath);
+            outputStream = new ZipArchiveOutputStream(outputFile);
+            zipCreator.writeTo(outputStream);
+            outputStream.finish();
+            return outputFile;
+        } catch (IOException | InterruptedException | ExecutionException e) {
+            e.printStackTrace();
         }
-        FileInputStream fis = new FileInputStream(fileToZip);
-        ZipEntry zipEntry = new ZipEntry(filePath);
-        zipOut.putNextEntry(zipEntry);
-        byte[] bytes = new byte[1024];
-        int length;
-        while ((length = fis.read(bytes)) >= 0) {
-            zipOut.write(bytes, 0, length);
-        }
-        fis.close();
+
+        return null;
     }
+
     /**
      * Get IP address from first non-localhost interface
      * @param useIPv4   true=return ipv4, false=return ipv6
