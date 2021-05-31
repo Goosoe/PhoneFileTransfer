@@ -24,7 +24,9 @@ public class HttpServer extends NanoHTTPD {
     private final String ip;
     private String downloadButtonVal = "download";
     private String outputZipPath = null;
-    private File lastZip = null;
+    private static File zippedFile;
+    private static String outputName = null;
+//    private File lastZip = null;
 
     public HttpServer(String ip , int port, Context context, List<String> filesToSend) {
         super(ip,port);
@@ -37,20 +39,22 @@ public class HttpServer extends NanoHTTPD {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        Utils.cleanCachedZips(context.getCacheDir());
     }
     @Override
     public Response serve(IHTTPSession session) {
-        String outputName = UUID.randomUUID().toString().concat(".zip");
-        outputZipPath = context.getCacheDir() + File.separator + outputName;
-
+        //TODO: check if this does not create extra stuff unnecessarily
         switch (session.getMethod()){
             case GET:
                 if(downloadButtonPressed(session)){
                     try {
-                        //TODO: check if its only one file and its a .zip or .7z format -> No need to call the zip service
-                        File zippedFile = Utils.zipFiles(filesToSend, outputZipPath);
-                        if(zippedFile == null)
-                            return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "Error sending the selected files or no files were selected for transfer");
+                        //TODO: check if its only one file or if its in a .zip or .7z format already -> No need to call the zip service
+                        if(zippedFile == null) {
+                            outputName = UUID.randomUUID().toString().concat(".zip");
+                            outputZipPath = context.getCacheDir() + File.separator + outputName;
+                            if ((zippedFile = Utils.zipFiles(filesToSend, outputZipPath)) == null)
+                                return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "Error sending the selected files or no files were selected for transfer");
+                        }
                         FileInputStream fis = new FileInputStream(zippedFile);
                         NanoHTTPD.Response res = newFixedLengthResponse(Response.Status.OK, "application/zip", fis, zippedFile.length());
                         res.addHeader("Content-Disposition", "attachment; filename=\"" + outputName + "\"");
@@ -86,6 +90,8 @@ public class HttpServer extends NanoHTTPD {
 
         return  newFixedLengthResponse("Something went wrong :(");
     }
+
+
 
     private boolean downloadButtonPressed(IHTTPSession session){
         return session.getParameters().containsKey(downloadButtonVal);

@@ -14,35 +14,32 @@ import org.apache.commons.compress.parallel.InputStreamSupplier;
 public class Utils {
 
     public static File zipFiles(List<String> paths, String outputZipPath){
+        if(paths.size() == 1 && paths.get(0).contains(".zip"))
+            return new File(paths.get(0));
 
         ZipArchiveOutputStream outputStream = null;
         ParallelScatterZipCreator zipCreator = new ParallelScatterZipCreator();
 
         for(String path : paths) {
             File f = new File(path);
-            InputStreamSupplier supp = new InputStreamSupplier() {
-                @Override
-                public InputStream get() {
-                    try {
-                        return new FileInputStream(f);
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                    return  null;
+            InputStreamSupplier supp = () -> {
+                try {
+                    return new FileInputStream(f);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
                 }
+                return  null;
             };
 
-            zipCreator.addArchiveEntry(new ZipArchiveEntryRequestSupplier() {
-                @Override
-                public ZipArchiveEntryRequest get() {
-                    ZipArchiveEntry entry = new ZipArchiveEntry(f, f.getName());
-                    entry.setMethod(ZipArchiveOutputStream.STORED);
-                    return ZipArchiveEntryRequest.createZipArchiveEntryRequest(entry, supp);
-                }
+            zipCreator.addArchiveEntry(() -> {
+                ZipArchiveEntry entry = new ZipArchiveEntry(f, f.getName());
+                entry.setMethod(ZipArchiveOutputStream.STORED);
+                return ZipArchiveEntryRequest.createZipArchiveEntryRequest(entry, supp);
             });
         }
         try {
             File outputFile = new File(outputZipPath);
+            System.out.println("create file: " + outputFile.createNewFile());
             outputStream = new ZipArchiveOutputStream(outputFile);
             zipCreator.writeTo(outputStream);
             outputStream.finish();
@@ -84,5 +81,20 @@ public class Utils {
         } catch (Exception ignored) { } // for now eat exceptions
         return "";
     }
+
+    /**
+     * Removes all zip files from context.getCacheDir()
+     * @param cacheDir = context.getCacheDir()
+     */
+    public static void cleanCachedZips(File cacheDir) {
+        for(File f : cacheDir.listFiles()){
+            String[] nameArray = f.getName().split("\\.");
+            if(nameArray.length > 0 && nameArray[nameArray.length - 1].equals("zip")){
+                f.delete();
+                System.out.println(f.getName() + " deleted");
+            }
+        }
+    }
+
 
 }
