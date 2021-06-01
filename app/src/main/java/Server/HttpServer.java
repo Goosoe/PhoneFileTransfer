@@ -1,18 +1,14 @@
 package Server;
 
 import android.content.Context;
-import android.se.omapi.Session;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
-import java.util.Timer;
 import java.util.UUID;
-import java.util.zip.ZipOutputStream;
 
+import SillyGoose.phonefiletransfer.R;
 import fi.iki.elonen.NanoHTTPD;
 
 public class HttpServer extends NanoHTTPD {
@@ -21,7 +17,7 @@ public class HttpServer extends NanoHTTPD {
     private final List<String> filesToSend;
 
     private final String ip;
-    private String downloadButtonVal = "download";
+//    private static final String DOWNLOAD_BUTTON_VAL = "download";
     private static File zippedFile;
     private static String outputName = null;
 
@@ -36,19 +32,19 @@ public class HttpServer extends NanoHTTPD {
             e.printStackTrace();
         }
         Utils.cleanCachedZips(context.getCacheDir());
+        prepareZip();
+
     }
+
     @Override
     public Response serve(IHTTPSession session) {
         //TODO: check if this does not create extra stuff unnecessarily
         switch (session.getMethod()){
             case GET:
-                if(downloadButtonPressed(session)){
+                if(downloadButtonPressed(session)) {
                     try {
-                        if(zippedFile == null) {
-                            outputName = UUID.randomUUID().toString().concat(".zip");
-                            String outputZipPath = context.getCacheDir() + File.separator + outputName;
-                            if ((zippedFile = Utils.zipFiles(filesToSend, outputZipPath)) == null)
-                                return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "Error sending the selected files or no files were selected for transfer");
+                        if (zippedFile == null) {
+                            return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "Error sending the selected files or no files were selected for transfer");
                         }
                         FileInputStream fis = new FileInputStream(zippedFile);
                         NanoHTTPD.Response res = newFixedLengthResponse(Response.Status.OK, "application/zip", fis, zippedFile.length());
@@ -59,16 +55,16 @@ public class HttpServer extends NanoHTTPD {
                         //does nothing
                     }
                 }
-                else {
+                else{
 //
-                    //TODO: interesting string here. Should I make a html creator or just leave this beast here?
-                    final String html = "<html> <p> Connection from local device: " + android.os.Build.MODEL + "</p>\n" +
-                            "<p>Number of files to download: " + filesToSend.size() +"</p>\n" +
-                            "<form action=\"\" method=\"get\"><button name=\"" + downloadButtonVal + "\">Get Files</button></form>" +
+                        //TODO: interesting string here. Should I make a html creator or just leave this beast here?
+                        final String html = "<html> <p> Connection from local device: " + android.os.Build.MODEL + "</p>\n" +
+                                "<p>Number of files to download: " + filesToSend.size() + "</p>\n" +
+                                "<form action=\"\" method=\"get\"><button name=\"" + R.string.download_button_val + "\">Get Files</button></form>" +
 //                                info +
-                            "</html>";
-                    return newFixedLengthResponse(html);
-                }
+                                "</html>";
+                        return newFixedLengthResponse(html);
+                    }
             case POST:
                 break;
             default:
@@ -89,8 +85,15 @@ public class HttpServer extends NanoHTTPD {
 
 
     private boolean downloadButtonPressed(IHTTPSession session){
-        return session.getParameters().containsKey(downloadButtonVal);
+        return session.getParameters().containsKey(R.string.download_button_val);
     }
 
+    private void prepareZip() {
+//        if(zippedFile == null) {
+            outputName = UUID.randomUUID().toString().concat(".zip");
+            String outputZipPath = context.getCacheDir() + File.separator + outputName;
+            zippedFile = Utils.zipFiles(filesToSend, outputZipPath);
+//        }
+    }
 
 }

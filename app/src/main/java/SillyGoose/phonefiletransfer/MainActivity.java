@@ -29,9 +29,7 @@ import Utils.UriUtils;
 
 public class MainActivity extends AppCompatActivity{
 
-    private static String ip = "localhost";
-    private static final int PORT = 8080;
-    private HttpServer server = null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,80 +40,7 @@ public class MainActivity extends AppCompatActivity{
         this.findViewById(R.id.textView2).setVisibility(View.INVISIBLE);
 
         askForPermissions();
-        String[] uris = checkReceivedIntent();
-        if(uris != null)
-            startServer(uris);
 
-    }
-
-    /**
-     * This function checks for received intents from navigator apps which have the URI's of the desired files to send
-     * @return a String[] of the URI's to send or null if error/none
-     */
-    public  String[] checkReceivedIntent() {
-        Intent intent = getIntent();
-        String action = intent.getAction();
-        LinkedList<String> filesPaths = new LinkedList<>();
-        ArrayList<Uri> uris = null;
-
-        switch (action) {
-            case Intent.ACTION_SEND:
-                uris = new ArrayList<>();
-                uris.add(intent.getParcelableExtra(Intent.EXTRA_STREAM));
-                break;
-            case Intent.ACTION_SEND_MULTIPLE:
-                uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-                break;
-
-        }
-        UriUtils uriUtils = new UriUtils(this.getBaseContext());
-        if (uris != null) {
-            for (Uri fileUri : uris) {
-                filesPaths.add(uriUtils.getPath(fileUri));
-            }
-            String[] itemsArray = new String[filesPaths.size()];
-            return filesPaths.toArray(itemsArray);
-
-        }
-        return null;
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if(server != null && server.isAlive()) {
-            server.stop();
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (server != null && !server.isAlive()) {
-            try {
-                server.start();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void startServer(String[] filesToUpload) {
-        if(filesToUpload.length < 1 ) {
-            Toast.makeText(getApplicationContext(), "You don't have any files chosen to send", Toast.LENGTH_LONG).show();
-            return;
-        }
-        ip = Utils.getIPAddress(true);
-        TextView ipText = findViewById(R.id.informationText);
-        ipText.setText(getString(R.string.connect, ip.concat(":").concat(String.valueOf(PORT))));
-
-        if(server == null) {
-            server = new HttpServer(ip, PORT, this, Arrays.asList(filesToUpload));
-        }
-        Button b = this.findViewById(R.id.button);
-        b.setVisibility(View.VISIBLE);
-        this.findViewById(R.id.textView2).setVisibility(View.VISIBLE);
-        b.setOnClickListener(v -> super.finish());
 
     }
     
