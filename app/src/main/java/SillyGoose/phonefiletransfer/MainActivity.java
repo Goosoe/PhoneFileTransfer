@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity{
      * This function checks for received intents from navigator apps which have the URI's of the desired files to send
      * @return a String[] of the URI's to send or null if error/none
      */
-    public  String[]  checkReceivedIntent() {
+    public  String[] checkReceivedIntent() {
         Intent intent = getIntent();
         String action = intent.getAction();
         LinkedList<String> filesPaths = new LinkedList<>();

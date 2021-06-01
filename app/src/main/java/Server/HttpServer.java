@@ -16,24 +16,20 @@ import java.util.zip.ZipOutputStream;
 import fi.iki.elonen.NanoHTTPD;
 
 public class HttpServer extends NanoHTTPD {
-//    private static File CACHE_FILE;
-//    private static final String CACHE_FILE_NAME = "cache";
+
     private final Context context;
     private final List<String> filesToSend;
-//    private static final String outputName = "out.zip";
+
     private final String ip;
     private String downloadButtonVal = "download";
-    private String outputZipPath = null;
     private static File zippedFile;
     private static String outputName = null;
-//    private File lastZip = null;
 
     public HttpServer(String ip , int port, Context context, List<String> filesToSend) {
         super(ip,port);
         this.context = context;
         this.filesToSend = filesToSend;
         this.ip = ip;
-//        CACHE_FILE = new File(context.getCacheDir().toString().concat(CACHE_FILE_NAME));
         try {
             start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
         } catch (IOException e) {
@@ -48,10 +44,9 @@ public class HttpServer extends NanoHTTPD {
             case GET:
                 if(downloadButtonPressed(session)){
                     try {
-                        //TODO: check if its only one file or if its in a .zip or .7z format already -> No need to call the zip service
                         if(zippedFile == null) {
                             outputName = UUID.randomUUID().toString().concat(".zip");
-                            outputZipPath = context.getCacheDir() + File.separator + outputName;
+                            String outputZipPath = context.getCacheDir() + File.separator + outputName;
                             if ((zippedFile = Utils.zipFiles(filesToSend, outputZipPath)) == null)
                                 return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "Error sending the selected files or no files were selected for transfer");
                         }

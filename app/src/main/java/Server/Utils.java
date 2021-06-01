@@ -10,12 +10,20 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntryRequest;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryRequestSupplier;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.parallel.InputStreamSupplier;
+import org.apache.commons.io.FileUtils;
 
 public class Utils {
 
     public static File zipFiles(List<String> paths, String outputZipPath){
-        if(paths.size() == 1 && paths.get(0).contains(".zip"))
-            return new File(paths.get(0));
+        if(paths.size() == 1 && paths.get(0).contains(".zip")) {
+            File dest = new File(outputZipPath);
+            try {
+                FileUtils.copyFile(new File(paths.get(0)), dest);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return dest;
+        }
 
         ZipArchiveOutputStream outputStream = null;
         ParallelScatterZipCreator zipCreator = new ParallelScatterZipCreator();
