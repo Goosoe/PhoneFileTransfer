@@ -1,6 +1,5 @@
 package SillyGoose.phonefiletransfer;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
@@ -9,33 +8,37 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.karumi.dexter.Dexter;
-import com.karumi.dexter.PermissionToken;
-import com.karumi.dexter.listener.PermissionDeniedResponse;
-import com.karumi.dexter.listener.PermissionGrantedResponse;
-import com.karumi.dexter.listener.PermissionRequest;
-import com.karumi.dexter.listener.single.PermissionListener;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 
+import RequestList.RequestAdapter;
 import Server.HttpServer;
-import Server.Utils;
+import Server.ZipUtils;
 import Utils.UriUtils;
+import Utils.Utils;
 
 public class ServerActivity extends Activity {
 
     private static String ip = "localhost";
     private static final int PORT = 8080;
     private HttpServer server = null;
+    private RecyclerView requestView;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.server_layout);
 
-        askForPermissions();
+        requestView = this.findViewById(R.id.requestListView);
+        requestView.setLayoutManager(new LinearLayoutManager(this));
+//        String[] test = {"bruh", "bruh2"};
+        requestView.setAdapter(new RequestAdapter());
+
+        Utils.askForPermissions(this);
         String[] uris = checkReceivedIntent();
         if(uris != null)
             startServer(uris);
@@ -97,7 +100,7 @@ public class ServerActivity extends Activity {
             Toast.makeText(getApplicationContext(), "You don't have any files chosen to send", Toast.LENGTH_LONG).show();
             return;
         }
-        ip = Utils.getIPAddress(true);
+        ip = ZipUtils.getIPAddress(true);
         TextView serverDirections = findViewById(R.id.serverDirections);
         serverDirections.setText(R.string.connect);
         TextView ipText = findViewById(R.id.serverIp);
@@ -108,26 +111,14 @@ public class ServerActivity extends Activity {
         if(server == null) {
             server = new HttpServer(ip, PORT, this, Arrays.asList(filesToUpload));
         }
+
         ImageButton b = this.findViewById(R.id.powerButton);
-//        b.setVisibility(View.VISIBLE);
-//        this.findViewById(R.id.textView2).setVisibility(View.VISIBLE);
         b.setOnClickListener(listener -> super.finish());
-
     }
 
-    private void askForPermissions(){
-        Dexter.withContext(this)
-                .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-                .withListener(new PermissionListener() {
-                    @Override public void onPermissionGranted(PermissionGrantedResponse response) {
-
-                    }
-                    @Override public void onPermissionDenied(PermissionDeniedResponse response) {
-                        Toast.makeText(getApplicationContext(),"Please allow access permissions, otherwise the app won't work", Toast.LENGTH_LONG).show();
-
-                    }
-                    @Override public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {
-                        Toast.makeText(getApplicationContext(),"Please allow access permissions, otherwise the app won't work", Toast.LENGTH_LONG).show();}
-                }).check();
+    public void newRequest(String info){
+        ((RequestAdapter)requestView.getAdapter()).addItem(info);
     }
+
+
 }

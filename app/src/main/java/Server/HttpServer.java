@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 import SillyGoose.phonefiletransfer.R;
+import SillyGoose.phonefiletransfer.ServerActivity;
 import fi.iki.elonen.NanoHTTPD;
 
 public class HttpServer extends NanoHTTPD {
@@ -31,7 +32,7 @@ public class HttpServer extends NanoHTTPD {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Utils.cleanCachedZips(context.getCacheDir());
+        ZipUtils.cleanCachedZips(context.getCacheDir());
         prepareZip();
 
     }
@@ -42,6 +43,7 @@ public class HttpServer extends NanoHTTPD {
         switch (session.getMethod()){
             case GET:
                 if(downloadButtonPressed(session)) {
+                    newRequest(session.getRemoteHostName(), session.getRemoteIpAddress());
                     try {
                         if (zippedFile == null) {
                             return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "Error sending the selected files or no files were selected for transfer");
@@ -56,14 +58,13 @@ public class HttpServer extends NanoHTTPD {
                     }
                 }
                 else{
-//
                         //TODO: interesting string here. Should I make a html creator or just leave this beast here?
                         final String html = "<html> <p> Connection from local device: " + android.os.Build.MODEL + "</p>\n" +
                                 "<p>Number of files to download: " + filesToSend.size() + "</p>\n" +
-                                "<form action=\"\" method=\"get\"><button name=\"" + R.string.download_button_val + "\">Get Files</button></form>" +
+                                "<form action=\"\" method=\"get\"><button name=\"" + context.getString(R.string.download_button_val) + "\">Get Files</button></form>" +
 //                                info +
                                 "</html>";
-                        return newFixedLengthResponse(html);
+                        return newFixedLengthResponse(Response.Status.OK, "text/html", html);
                     }
             case POST:
                 break;
@@ -82,17 +83,20 @@ public class HttpServer extends NanoHTTPD {
         return  newFixedLengthResponse("Something went wrong :(");
     }
 
+    private void newRequest(String hostname, String ip) {
+        ((ServerActivity)context).newRequest(hostname + "\n" + ip);
+    }
 
 
     private boolean downloadButtonPressed(IHTTPSession session){
-        return session.getParameters().containsKey(R.string.download_button_val);
+        return session.getParameters().containsKey(context.getString(R.string.download_button_val));
     }
 
     private void prepareZip() {
 //        if(zippedFile == null) {
             outputName = UUID.randomUUID().toString().concat(".zip");
             String outputZipPath = context.getCacheDir() + File.separator + outputName;
-            zippedFile = Utils.zipFiles(filesToSend, outputZipPath);
+            zippedFile = ZipUtils.zipFiles(filesToSend, outputZipPath);
 //        }
     }
 

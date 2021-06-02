@@ -37,23 +37,24 @@
         android:layout_height="52dp"
         android:layout_marginTop="50dp"
         android:scaleType="center"
+        android:src="@android:drawable/ic_lock_power_off"
         android:tint="@color/black"
-        app:layout_constraintBottom_toTopOf="@+id/RequestView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/fileInfo"
-        app:srcCompat="@android:drawable/ic_lock_power_off"
-        android:src="@android:drawable/ic_lock_power_off"/>
+        app:srcCompat="@android:drawable/ic_lock_power_off" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/RequestView"
-        android:layout_width="match_parent"
+        android:id="@+id/requestListView"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="15dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/powerButton" />
+        app:layout_constraintTop_toBottomOf="@+id/powerButton">
+
+    </androidx.recyclerview.widget.RecyclerView>
 
     <TextView
         android:id="@+id/serverDirections"

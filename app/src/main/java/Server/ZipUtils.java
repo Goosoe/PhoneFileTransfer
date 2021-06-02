@@ -12,7 +12,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.parallel.InputStreamSupplier;
 import org.apache.commons.io.FileUtils;
 
-public class Utils {
+public class ZipUtils {
 
     public static File zipFiles(List<String> paths, String outputZipPath){
         if(paths.size() == 1 && paths.get(0).contains(".zip")) {

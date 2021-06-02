@@ -82,7 +82,7 @@ public class UriUtils {
                         };
                         for (String contentUriPrefix : contentUriPrefixesToTry) {
                             try {
-                                final Uri contentUri = ContentUris.withAppendedId(Uri.parse(contentUriPrefix), Long.valueOf(id));
+                                final Uri contentUri = ContentUris.withAppendedId(Uri.parse(contentUriPrefix), Long.parseLong(id));
 
 
                                 return getDataColumn(context, contentUri, null, null);
@@ -244,7 +244,7 @@ public class UriUtils {
         if (fileExists(fullPath)) {
             return fullPath;
         }
-
+        
         return "";
     }
 
