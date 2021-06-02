@@ -47,7 +47,6 @@ public class ZipUtils {
         }
         try {
             File outputFile = new File(outputZipPath);
-            System.out.println("create file: " + outputFile.createNewFile());
             outputStream = new ZipArchiveOutputStream(outputFile);
             zipCreator.writeTo(outputStream);
             outputStream.finish();
@@ -99,7 +98,6 @@ public class ZipUtils {
             String[] nameArray = f.getName().split("\\.");
             if(nameArray.length > 0 && nameArray[nameArray.length - 1].equals("zip")){
                 f.delete();
-                System.out.println(f.getName() + " deleted");
             }
         }
     }

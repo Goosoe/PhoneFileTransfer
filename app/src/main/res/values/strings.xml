@@ -10,6 +10,7 @@
     <string name="close_connection_button">Close Connection</string>
     <string name="files_info"> Sharing %1$s file(s)</string>
     <string name="download_button_val"> Download</string>
+    <string name="requests_title"> Requests:</string>
 
 <!--    %1$s-->
 </resources>

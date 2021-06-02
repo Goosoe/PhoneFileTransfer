@@ -1,5 +1,7 @@
 package RequestList;
 
+import android.app.Activity;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,31 +19,51 @@ import SillyGoose.phonefiletransfer.R;
 public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestView> {
 
     private List<String> localDataSet;
+    private final static int MAX_REQUESTS = 10;
     /**
      * Initialize the dataset of the Adapter.
      *
-     * @param localDataSet  List<String> containing the data to populate views to be used
-     * by RecyclerView.
      */
     public RequestAdapter(){
-        this(null);
+        localDataSet = new ArrayList<>();
     }
 
-    public RequestAdapter(List<String> dataSet) {
-        if(dataSet == null)
-            localDataSet = new ArrayList<>();
-        else
-            localDataSet = dataSet;
-    }
 
-    public void addItem(String info){
+    /**
+     * Addas an item from the RecyclerViewList
+     * @param info - Information of the card
+     * @param activity - current activity
+     */
+    public void addItem(String info, Activity activity){
         localDataSet.add(info);
-        notifyDataSetChanged();
-
+        //this needs activity because otherwise it has no access to an ui thread to update
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                notifyItemInserted(localDataSet.size()- 1);
+            }
+        });
     }
-    public void removeItem(int pos){
+
+    /**
+     * Removes an item from the RecyclerViewList
+     * @param pos
+     * @param activity
+     */
+    public void removeItem(int pos, Activity activity){
         localDataSet.remove(pos);
-        notifyDataSetChanged();
+        //this needs activity because otherwise it has no access to an ui thread
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                notifyItemRemoved(pos);
+            }
+        });
+    }
+    protected void removeItem(int pos){
+        localDataSet.remove(pos);
+        //this does not need activity since its invoked by RequestView, which has access to ui thread.
+        notifyItemRemoved(pos);
     }
 
 
@@ -52,16 +74,12 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
         // Create a new view, which defines the UI of the list item
         View view = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.request_list_item, viewGroup, false);
-
         return new RequestView(view, this);
     }
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(RequestView requestView, final int position) {
-
-        // Get element from your dataset at this position and replace the
-        // contents of the view with that element
         requestView.getTextView().setText(localDataSet.get(position));
     }
 
@@ -109,7 +127,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
 
         private void removeFromList() {
             adapter.removeItem(this.getAdapterPosition());
-            Toast.makeText(view.getContext(), "denied " + this.getItemId(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(view.getContext(), "denied " + this.getAdapterPosition(), Toast.LENGTH_SHORT).show();
         }
     }
 }

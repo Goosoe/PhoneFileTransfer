@@ -35,7 +35,6 @@ public class ServerActivity extends Activity {
 
         requestView = this.findViewById(R.id.requestListView);
         requestView.setLayoutManager(new LinearLayoutManager(this));
-//        String[] test = {"bruh", "bruh2"};
         requestView.setAdapter(new RequestAdapter());
 
         Utils.askForPermissions(this);
@@ -117,7 +116,7 @@ public class ServerActivity extends Activity {
     }
 
     public void newRequest(String info){
-        ((RequestAdapter)requestView.getAdapter()).addItem(info);
+        ((RequestAdapter)requestView.getAdapter()).addItem(info, this);
     }
 
 
