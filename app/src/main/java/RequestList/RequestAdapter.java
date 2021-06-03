@@ -1,7 +1,6 @@
 package RequestList;
 
 import android.app.Activity;
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,10 +14,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import SillyGoose.phonefiletransfer.R;
+import SillyGoose.phonefiletransfer.ServerActivity;
+import Utils.Utils;
 
 public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestView> {
 
-    private List<String> localDataSet;
+    private List<Utils.Tuple<String, String>> localDataSet;
     private final static int MAX_REQUESTS = 10;
     /**
      * Initialize the dataset of the Adapter.
@@ -28,21 +29,23 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
         localDataSet = new ArrayList<>();
     }
 
-
     /**
-     * Addas an item from the RecyclerViewList
-     * @param info - Information of the card
+     * Adds an item from the RecyclerViewList
+     * @param hostname -
+     * @param ip
      * @param activity - current activity
      */
-    public void addItem(String info, Activity activity){
-        localDataSet.add(info);
+    public void addItem(String hostname, String ip, Activity activity){
+        localDataSet.add(new Utils.Tuple<>(hostname, ip));
+        int currentPos = localDataSet.size()- 1;
         //this needs activity because otherwise it has no access to an ui thread to update
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                notifyItemInserted(localDataSet.size()- 1);
+                notifyItemInserted(currentPos);
             }
         });
+
     }
 
     /**
@@ -80,7 +83,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
     // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(RequestView requestView, final int position) {
-        requestView.getTextView().setText(localDataSet.get(position));
+        requestView.prepareView(localDataSet.get(position));
     }
 
     // Return the size of your dataset (invoked by the layout manager)
@@ -95,19 +98,21 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
      * (custom ViewHolder).
      */
     public static class RequestView extends RecyclerView.ViewHolder {
+        private Utils.Tuple<String,String> info;
         private final TextView textView;
         private final ImageButton denyConn;
-        private final ImageButton acceptConn;
-        private View view;
+        private final ImageButton acceptConnBt;
+        private View mainView;
         private RequestAdapter adapter;
+        private boolean acceptedConnection;
         public RequestView(View view, RequestAdapter adapter) {
             super(view);
-            this.view = view;
+            this.mainView = view;
             this.adapter = adapter;
+            acceptedConnection = false;
             textView = (TextView) view.findViewById(R.id.textView);
             denyConn = (ImageButton) view.findViewById(R.id.denyConn);
-            acceptConn = (ImageButton) view.findViewById(R.id.acceptConn);
-
+            acceptConnBt = (ImageButton) view.findViewById(R.id.acceptConn);
             prepareButtons();
         }
 
@@ -115,19 +120,30 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
             return textView;
         }
 
+        public boolean getAcceptedConnection(){
+            return acceptedConnection;
+        }
         private void prepareButtons(){
             denyConn.setOnClickListener(listener -> removeFromList());
-            acceptConn.setOnClickListener(listener -> notifyServer());
+            acceptConnBt.setOnClickListener(listener -> acceptConnection());
         }
 
-        private void notifyServer() {
-            Toast.makeText(view.getContext(), "accepted", Toast.LENGTH_SHORT).show();
+        private void acceptConnection() {
+            acceptedConnection = true;
+            ((ServerActivity) mainView.getContext()).notifyServer(info);
+            removeFromList();
             // notifyServer(this);
         }
 
         private void removeFromList() {
             adapter.removeItem(this.getAdapterPosition());
-            Toast.makeText(view.getContext(), "denied " + this.getAdapterPosition(), Toast.LENGTH_SHORT).show();
+        }
+
+        public void prepareView(Utils.Tuple<String, String> tuple) {
+            info = tuple;
+            String text = tuple.getVal1() + "\n" + tuple.getVal2();
+            textView.setText(text);
+
         }
     }
 }

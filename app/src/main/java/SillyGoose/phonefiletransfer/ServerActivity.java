@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,15 +28,15 @@ public class ServerActivity extends Activity {
     private static String ip = "localhost";
     private static final int PORT = 8080;
     private HttpServer server = null;
-    private RecyclerView requestView;
+    private RecyclerView requestRecyclerView;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.server_layout);
 
-        requestView = this.findViewById(R.id.requestListView);
-        requestView.setLayoutManager(new LinearLayoutManager(this));
-        requestView.setAdapter(new RequestAdapter());
+        requestRecyclerView = this.findViewById(R.id.requestListView);
+        requestRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        requestRecyclerView.setAdapter(new RequestAdapter());
 
         Utils.askForPermissions(this);
         String[] uris = checkReceivedIntent();
@@ -115,8 +116,13 @@ public class ServerActivity extends Activity {
         b.setOnClickListener(listener -> super.finish());
     }
 
-    public void newRequest(String info){
-        ((RequestAdapter)requestView.getAdapter()).addItem(info, this);
+    public void newRequest(String hostname, String ip){
+       ((RequestAdapter) requestRecyclerView.getAdapter()).addItem(hostname, ip,this);
+    }
+
+    public void notifyServer(Utils.Tuple<String,String> info){
+        server.notifyAcceptedConnection(info);
+
     }
 
 
