@@ -45,14 +45,7 @@ public class ServerActivity extends Activity {
     protected void onStart() {
         super.onStart();
         Utils.askForPermissions(this);
-//        String[] uris = getIntent().getStringArrayExtra("uris");
-
-//        if(uris != null) {
-            long time = System.currentTimeMillis();
-            startServer();
-            System.out.println(System.currentTimeMillis() - time);
-//        }
-//        System.out.println("bruh");
+        startServer();
     }
 
     @Override
@@ -97,6 +90,7 @@ public class ServerActivity extends Activity {
     private void startServer() {
         //TODO: Null checks
         int fileNumber = -1;
+        //TODO: magic string
         String output = getIntent().getStringExtra("outputZipPath");
         ZipFile zipFile = null;
         try {
@@ -125,9 +119,9 @@ public class ServerActivity extends Activity {
 
         //TODO: make this happen in a thread, so the zipping can happen. While that thread is
         // running make a secondary thread to rotate an image button
-            if(server == null) {
-                server = new HttpServer(ip, PORT, this, output, fileNumber);
-            }
+        if(server == null) {
+            server = new HttpServer(ip, PORT, this, output, fileNumber);
+        }
     }
 
     /**

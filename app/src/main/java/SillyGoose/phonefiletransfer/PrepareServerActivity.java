@@ -1,17 +1,11 @@
 package SillyGoose.phonefiletransfer;
 
 import android.app.Activity;
-import android.app.IntentService;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.core.app.JobIntentService;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -19,23 +13,28 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import RequestList.RequestAdapter;
 import Server.ServerUtils;
 import Utils.UriUtils;
 
 public class PrepareServerActivity extends Activity {
 
     private String outputZipPath;
+//    private ProgressBar pBar;
+    private TextView progressText;
+    private int filesZipped;
+    private int totalFilesToZip;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.prepare_server_layout);
+        this.totalFilesToZip = 0;
+//        pBar = findViewById(R.id.progressBar);
+        progressText = findViewById(R.id.progressText);
+        updateText();
         ExecutorService executorService = Executors.newFixedThreadPool(1);
-
         executorService.submit(() -> {
             outputZipPath = prepareZip(Arrays.asList(checkReceivedIntent()));
             notifyServerReady();
@@ -45,29 +44,11 @@ public class PrepareServerActivity extends Activity {
 
     private void notifyServerReady() {
         Intent intent = new Intent(this, ServerActivity.class);
+        //TODO: magic string
         intent.putExtra("outputZipPath", outputZipPath);
         startActivity(intent);
         finish();
     }
-
-//    private class StartServerService extends JobIntentService {
-//        static final int JOB_ID = 1000;
-//        private String zipPath;
-//        public StartServerService () {
-//            super();
-//        }
-//
-//        @Override
-//        protected void onHandleWork(@NonNull Intent intent) {
-//        }
-//
-//
-//        void enqueueWork(Context context, Intent intent) {
-//            enqueueWork(context, StartServerService.class, JOB_ID, intent);
-//        }
-//
-
-
 
     private String[] checkReceivedIntent() {
         Intent intent = getIntent();
@@ -83,26 +64,28 @@ public class PrepareServerActivity extends Activity {
                 uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
                 break;
         }
+        totalFilesToZip = uris.size();
         UriUtils uriUtils = new UriUtils(this.getBaseContext());
-        //TODO: Overkill much?
+        //TODO: Overkill much? - what about 1 core processors? Do they still exist?
         if (uris != null) {
             ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() / 2);
-            long time = System.currentTimeMillis();
             for (Uri fileUri : uris) {
-                //TODO: ITS HERE MF
                 executorService.submit(() -> {
                     filesPaths.add(uriUtils.getPath(fileUri));
+                    filesZipped++;
+                    updateText();
                 });
             }
             String[] itemsArray = new String[filesPaths.size()];
             executorService.shutdown();
             while (!executorService.isTerminated()){
-                //do nothing
+                //TODO: do nothing
             }
-            System.out.println(System.currentTimeMillis() - time);
+            updateText();
             return filesPaths.toArray(itemsArray);
 
         }
+        updateText();
         return null;
     }
 
@@ -118,5 +101,14 @@ public class PrepareServerActivity extends Activity {
         ServerUtils.zipFiles(filesToSend, outputZipPath);
         return outputZipPath;
 //        }
+    }
+
+    private void updateText(){
+        this.runOnUiThread(() ->{
+            String text = "Reading files: ";
+            progressText.setText(text + filesZipped + "/" + totalFilesToZip);
+            if(filesZipped == totalFilesToZip)
+                progressText.setText("Zipping Files");
+        });
     }
 }

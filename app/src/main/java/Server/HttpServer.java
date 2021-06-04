@@ -7,7 +7,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.zip.ZipFile;
 
 import RequestList.RequestInfo;
 import SillyGoose.phonefiletransfer.R;
@@ -21,25 +20,33 @@ public class HttpServer extends NanoHTTPD {
     //Has the ip's of the open sessions
     private final HashSet<RequestInfo> requestedConnections;
     private final String ip;
-    private int fileNumber;
+    private int numberOfFiles;
 //    private static File zippedFile;
 
-    public HttpServer(String ip , int port, Context context, String pathOfFileToSend) {
+    private HttpServer(String ip , int port, Context context, String pathOfFileToSend) {
         super(ip,port);
         this.context = context;
         this.pathOfFileToSend = pathOfFileToSend;
         this.ip = ip;
         this.requestedConnections = new HashSet<>();
-        this.fileNumber = 0;
+        this.numberOfFiles = 0;
         try {
             start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    public HttpServer(String ip , int port, Context context, String pathOfFileToSend, int fileSize) {
+
+    /***
+     * @param ip
+     * @param port
+     * @param context
+     * @param pathOfFileToSend
+     * @param numberOfFiles
+     */
+    public HttpServer(String ip , int port, Context context, String pathOfFileToSend, int numberOfFiles) {
         this(ip, port, context, pathOfFileToSend);
-        this.fileNumber = fileSize;
+        this.numberOfFiles = numberOfFiles;
     }
 
     @Override
@@ -63,7 +70,7 @@ public class HttpServer extends NanoHTTPD {
                                 return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "Error sending the selected files or no files were selected for transfer");
                             }
                             FileInputStream fis = new FileInputStream(zippedFile);
-                            NanoHTTPD.Response res = newFixedLengthResponse(Response.Status.OK, "application/zip", fis, fileNumber);
+                            NanoHTTPD.Response res = newFixedLengthResponse(Response.Status.OK, "application/zip", fis, zippedFile.length());
                             res.addHeader("Content-Disposition", "attachment; filename=\"PhoneFileTransfer.zip\"");
                             removeRequest(session.getRemoteIpAddress());
                             return res;
@@ -74,6 +81,7 @@ public class HttpServer extends NanoHTTPD {
                     }
                     else{
                         removeRequest(session.getRemoteIpAddress());
+                        //TODO: magic string
                         final String html = "<html><p> Request denied by the server/phone user :(</p></html>";
                         return newFixedLengthResponse(Response.Status.OK, "text/html", html);
                     }
@@ -82,14 +90,13 @@ public class HttpServer extends NanoHTTPD {
                 }
                 else{
                     //TODO: interesting string here. Should I make a html creator or just leave this beast here?
-                    int size = 0;
 //                    try {
 ////                        size = new ZipFile(pathOfFileToSend).size();
 //                    } catch (IOException e) {
 //                        e.printStackTrace();
 //                    }
                     final String html = "<html> <p> Connection from local device: " + android.os.Build.MODEL + "</p>\n" +
-                            "<p>Number of files to download: " + size + "</p>\n" +
+                            "<p>Number of files to download: " + numberOfFiles + "</p>\n" +
                             "<form action=\"\" method=\"get\"><button name=\"" + context.getString(R.string.download_button_val) + "\">Get Files</button></form>" +
                             "<p>After pressing the button, the phone user needs to accept your request. Please wait or notify the said" +
                             " user to accept your request if it is taking too long </p>" +
@@ -99,6 +106,7 @@ public class HttpServer extends NanoHTTPD {
             case POST:
                 break;
             default:
+                //TODO: magic string
                 return newFixedLengthResponse("Whoops, something went wrong :(");
         }
 //            if(session.getMethod()  == Method.GET){
@@ -109,7 +117,7 @@ public class HttpServer extends NanoHTTPD {
 //            NanoHTTPD.Response res = newFixedLengthResponse (Response.Status.OK, "application/zip", fis, zippedFile.length());
 //            res.addHeader("Content-Disposition", "attachment; filename=\"" + outputName+ "\"");
 //            return res;
-
+            //TODO: magic string
         return  newFixedLengthResponse("Something went wrong :(");
     }
 
