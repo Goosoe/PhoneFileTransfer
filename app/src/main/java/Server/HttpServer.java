@@ -4,10 +4,10 @@ import android.content.Context;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.List;
-import java.util.UUID;
+import java.util.zip.ZipFile;
 
 import RequestList.RequestInfo;
 import SillyGoose.phonefiletransfer.R;
@@ -17,26 +17,29 @@ import fi.iki.elonen.NanoHTTPD;
 public class HttpServer extends NanoHTTPD {
 
     private final Context context;
-    private final List<String> filesToSend;
+    private String pathOfFileToSend;
     //Has the ip's of the open sessions
     private final HashSet<RequestInfo> requestedConnections;
     private final String ip;
-    private static File zippedFile;
-    private static String outputName = null;
+    private int fileNumber;
+//    private static File zippedFile;
 
-    public HttpServer(String ip , int port, Context context, List<String> filesToSend) {
+    public HttpServer(String ip , int port, Context context, String pathOfFileToSend) {
         super(ip,port);
         this.context = context;
-        this.filesToSend = filesToSend;
+        this.pathOfFileToSend = pathOfFileToSend;
         this.ip = ip;
         this.requestedConnections = new HashSet<>();
+        this.fileNumber = 0;
         try {
             start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        ZipUtils.cleanCachedZips(context.getCacheDir());
-        prepareZip();
+    }
+    public HttpServer(String ip , int port, Context context, String pathOfFileToSend, int fileSize) {
+        this(ip, port, context, pathOfFileToSend);
+        this.fileNumber = fileSize;
     }
 
     @Override
@@ -49,21 +52,24 @@ public class HttpServer extends NanoHTTPD {
         switch (session.getMethod()){
             case GET:
                 if(downloadButtonPressed(session)) {
+                    //TODO: if this request already exists in http server, it can drop the connection
                     newRequest(session.getRemoteHostName(), session.getRemoteIpAddress());
                     //if request accepted
                     if(waitForConfirmation(session.getRemoteIpAddress())){
                         try {
+
+                            File zippedFile = new File(pathOfFileToSend);
                             if (zippedFile == null) {
                                 return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "Error sending the selected files or no files were selected for transfer");
                             }
                             FileInputStream fis = new FileInputStream(zippedFile);
-                            NanoHTTPD.Response res = newFixedLengthResponse(Response.Status.OK, "application/zip", fis, zippedFile.length());
-                            res.addHeader("Content-Disposition", "attachment; filename=\"" + outputName + "\"");
+                            NanoHTTPD.Response res = newFixedLengthResponse(Response.Status.OK, "application/zip", fis, fileNumber);
+                            res.addHeader("Content-Disposition", "attachment; filename=\"PhoneFileTransfer.zip\"");
                             removeRequest(session.getRemoteIpAddress());
                             return res;
 
-                        } catch (IOException e) {
-                            //does nothing
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
                         }
                     }
                     else{
@@ -76,8 +82,14 @@ public class HttpServer extends NanoHTTPD {
                 }
                 else{
                     //TODO: interesting string here. Should I make a html creator or just leave this beast here?
+                    int size = 0;
+//                    try {
+////                        size = new ZipFile(pathOfFileToSend).size();
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
                     final String html = "<html> <p> Connection from local device: " + android.os.Build.MODEL + "</p>\n" +
-                            "<p>Number of files to download: " + filesToSend.size() + "</p>\n" +
+                            "<p>Number of files to download: " + size + "</p>\n" +
                             "<form action=\"\" method=\"get\"><button name=\"" + context.getString(R.string.download_button_val) + "\">Get Files</button></form>" +
                             "<p>After pressing the button, the phone user needs to accept your request. Please wait or notify the said" +
                             " user to accept your request if it is taking too long </p>" +
@@ -129,13 +141,7 @@ public class HttpServer extends NanoHTTPD {
         return session.getParameters().containsKey(context.getString(R.string.download_button_val));
     }
 
-    private void prepareZip() {
-//        if(zippedFile == null) {
-        outputName = UUID.randomUUID().toString().concat(".zip");
-        String outputZipPath = context.getCacheDir() + File.separator + outputName;
-        zippedFile = ZipUtils.zipFiles(filesToSend, outputZipPath);
-//        }
-    }
+
 
     private boolean waitForConfirmation(String ip) {
         while (true) {

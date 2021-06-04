@@ -12,7 +12,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.parallel.InputStreamSupplier;
 import org.apache.commons.io.FileUtils;
 
-public class ZipUtils {
+public class ServerUtils {
 
     public static File zipFiles(List<String> paths, String outputZipPath){
         if(paths.size() == 1 && paths.get(0).contains(".zip")) {
@@ -50,6 +50,7 @@ public class ZipUtils {
             outputStream = new ZipArchiveOutputStream(outputFile);
             zipCreator.writeTo(outputStream);
             outputStream.finish();
+            outputStream.close();
             return outputFile;
         } catch (IOException | InterruptedException | ExecutionException e) {
             e.printStackTrace();
@@ -94,6 +95,7 @@ public class ZipUtils {
      * @param cacheDir = context.getCacheDir()
      */
     public static void cleanCachedZips(File cacheDir) {
+        //TODO: MT too?
         System.out.println("cached size " + cacheDir.listFiles().length);
         //this can be MT
         for(File f : cacheDir.listFiles()){

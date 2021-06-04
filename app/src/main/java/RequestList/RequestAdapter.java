@@ -36,6 +36,10 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
      * @param activity - current activity
      */
     public void addItem(String hostname, String ip, Activity activity){
+        RequestInfo newRequest = new RequestInfo(ip, hostname);
+        if(localDataSet.contains(newRequest))
+            return;
+
         localDataSet.add(new RequestInfo(ip, hostname));
         int currentPos = localDataSet.size()- 1;
         //this needs activity because otherwise it has no access to an ui thread to update
@@ -45,7 +49,6 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                 notifyItemInserted(currentPos);
             }
         });
-
     }
 
     /**
