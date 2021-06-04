@@ -18,8 +18,6 @@ import Utils.Utils;
 
 public class MainActivity extends AppCompatActivity{
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,10 +25,11 @@ public class MainActivity extends AppCompatActivity{
 
         this.findViewById(R.id.button).setVisibility(View.INVISIBLE);
         this.findViewById(R.id.textView2).setVisibility(View.INVISIBLE);
-
-        Utils.askForPermissions(this);
-
-
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Utils.askForPermissions(this);
+    }
 }

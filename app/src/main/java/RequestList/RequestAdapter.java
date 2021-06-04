@@ -19,7 +19,7 @@ import Utils.Utils;
 
 public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestView> {
 
-    private List<Utils.Tuple<String, String>> localDataSet;
+    private List<RequestInfo> localDataSet;
     private final static int MAX_REQUESTS = 10;
     /**
      * Initialize the dataset of the Adapter.
@@ -36,7 +36,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
      * @param activity - current activity
      */
     public void addItem(String hostname, String ip, Activity activity){
-        localDataSet.add(new Utils.Tuple<>(hostname, ip));
+        localDataSet.add(new RequestInfo(ip, hostname));
         int currentPos = localDataSet.size()- 1;
         //this needs activity because otherwise it has no access to an ui thread to update
         activity.runOnUiThread(new Runnable() {
@@ -98,18 +98,17 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
      * (custom ViewHolder).
      */
     public static class RequestView extends RecyclerView.ViewHolder {
-        private Utils.Tuple<String,String> info;
+        private RequestInfo info;
         private final TextView textView;
         private final ImageButton denyConn;
         private final ImageButton acceptConnBt;
         private View mainView;
         private RequestAdapter adapter;
-        private boolean acceptedConnection;
+
         public RequestView(View view, RequestAdapter adapter) {
             super(view);
             this.mainView = view;
             this.adapter = adapter;
-            acceptedConnection = false;
             textView = (TextView) view.findViewById(R.id.textView);
             denyConn = (ImageButton) view.findViewById(R.id.denyConn);
             acceptConnBt = (ImageButton) view.findViewById(R.id.acceptConn);
@@ -120,28 +119,25 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
             return textView;
         }
 
-        public boolean getAcceptedConnection(){
-            return acceptedConnection;
-        }
         private void prepareButtons(){
-            denyConn.setOnClickListener(listener -> removeFromList());
+            denyConn.setOnClickListener(listener -> denyConnection());
             acceptConnBt.setOnClickListener(listener -> acceptConnection());
         }
 
         private void acceptConnection() {
-            acceptedConnection = true;
+            info.setAccepted(true);
             ((ServerActivity) mainView.getContext()).notifyServer(info);
-            removeFromList();
-            // notifyServer(this);
+            adapter.removeItem(this.getBindingAdapterPosition());
         }
 
-        private void removeFromList() {
-            adapter.removeItem(this.getAdapterPosition());
+        private void denyConnection(){
+            ((ServerActivity) mainView.getContext()).notifyServer(info);
+            adapter.removeItem(this.getBindingAdapterPosition());
         }
 
-        public void prepareView(Utils.Tuple<String, String> tuple) {
-            info = tuple;
-            String text = tuple.getVal1() + "\n" + tuple.getVal2();
+        public void prepareView(RequestInfo info) {
+            this.info = info;
+            String text = info.getHostname() + "\n" + info.getIp();
             textView.setText(text);
 
         }

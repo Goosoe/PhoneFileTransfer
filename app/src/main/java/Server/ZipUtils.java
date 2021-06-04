@@ -94,12 +94,15 @@ public class ZipUtils {
      * @param cacheDir = context.getCacheDir()
      */
     public static void cleanCachedZips(File cacheDir) {
+        System.out.println("cached size " + cacheDir.listFiles().length);
+        //this can be MT
         for(File f : cacheDir.listFiles()){
             String[] nameArray = f.getName().split("\\.");
-            if(nameArray.length > 0 && nameArray[nameArray.length - 1].equals("zip")){
+            if(f.getName().contains("parallelscatter") || (nameArray.length > 0 && nameArray[nameArray.length - 1].equals("zip"))){
                 f.delete();
             }
         }
+        System.out.println("cached size after " + cacheDir.listFiles().length);
     }
 
 
