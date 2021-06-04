@@ -17,11 +17,10 @@ public class HttpServer extends NanoHTTPD {
 
     private final Context context;
     private String pathOfFileToSend;
-    //Has the ip's of the open sessions
+    //Has the info of the open sessions
     private final HashSet<RequestInfo> requestedConnections;
     private final String ip;
     private int numberOfFiles;
-//    private static File zippedFile;
 
     private HttpServer(String ip , int port, Context context, String pathOfFileToSend) {
         super(ip,port);
@@ -62,39 +61,43 @@ public class HttpServer extends NanoHTTPD {
                     //TODO: if this request already exists in http server, it can drop the connection
                     newRequest(session.getRemoteHostName(), session.getRemoteIpAddress());
                     //if request accepted
-                    if(waitForConfirmation(session.getRemoteIpAddress())){
-                        try {
+                    switch (waitForConfirmation(session.getRemoteIpAddress())) {
+                        case ACCEPTED:
+                            try {
 
-                            File zippedFile = new File(pathOfFileToSend);
-                            if (zippedFile == null) {
-                                return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "Error sending the selected files or no files were selected for transfer");
+                                File zippedFile = new File(pathOfFileToSend);
+                                if (zippedFile == null) {
+                                    return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "Error sending the selected files or no files were selected for transfer");
+                                }
+                                FileInputStream fis = new FileInputStream(zippedFile);
+                                NanoHTTPD.Response res = newFixedLengthResponse(Response.Status.OK, "application/zip", fis, zippedFile.length());
+                                res.addHeader("Content-Disposition", "attachment; filename=\"PhoneFileTransfer.zip\"");
+                                removeRequest(session.getRemoteIpAddress());
+                                return res;
+
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
                             }
-                            FileInputStream fis = new FileInputStream(zippedFile);
-                            NanoHTTPD.Response res = newFixedLengthResponse(Response.Status.OK, "application/zip", fis, zippedFile.length());
-                            res.addHeader("Content-Disposition", "attachment; filename=\"PhoneFileTransfer.zip\"");
+                            break;
+
+                        case DENIED:
                             removeRequest(session.getRemoteIpAddress());
-                            return res;
+                            //TODO: magic string
+                            final String html = "<html><p> Request denied by the server/phone user :(</p></html>";
+                            return newFixedLengthResponse(Response.Status.OK, "text/html", html);
 
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    else{
-                        removeRequest(session.getRemoteIpAddress());
-                        //TODO: magic string
-                        final String html = "<html><p> Request denied by the server/phone user :(</p></html>";
-                        return newFixedLengthResponse(Response.Status.OK, "text/html", html);
-                    }
+                        case TIMEOUT:
+                            removeRequest(session.getRemoteIpAddress());
+                            //TODO: magic string
+                            final String html1 = "<html><p> Request timed out, please request again </p>" +
+                                    "<form action=\"\" method=\"get\"><button name=\"" + context.getString(R.string.download_button_val) + "\">Get Files</button></form>" +
+                                    "</html>";
+                            return newFixedLengthResponse(Response.Status.OK, "text/html", html1);
 
-                    //else  return timeout
+                    }
                 }
                 else{
                     //TODO: interesting string here. Should I make a html creator or just leave this beast here?
-//                    try {
-////                        size = new ZipFile(pathOfFileToSend).size();
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
                     final String html = "<html> <p> Connection from local device: " + android.os.Build.MODEL + "</p>\n" +
                             "<p>Number of files to download: " + numberOfFiles + "</p>\n" +
                             "<form action=\"\" method=\"get\"><button name=\"" + context.getString(R.string.download_button_val) + "\">Get Files</button></form>" +
@@ -109,15 +112,7 @@ public class HttpServer extends NanoHTTPD {
                 //TODO: magic string
                 return newFixedLengthResponse("Whoops, something went wrong :(");
         }
-//            if(session.getMethod()  == Method.GET){
-//
-//            }
-//
-//            //default response
-//            NanoHTTPD.Response res = newFixedLengthResponse (Response.Status.OK, "application/zip", fis, zippedFile.length());
-//            res.addHeader("Content-Disposition", "attachment; filename=\"" + outputName+ "\"");
-//            return res;
-            //TODO: magic string
+        //TODO: magic string
         return  newFixedLengthResponse("Something went wrong :(");
     }
 
@@ -151,12 +146,13 @@ public class HttpServer extends NanoHTTPD {
 
 
 
-    private boolean waitForConfirmation(String ip) {
+    private REQUEST_RESPONSE_TYPE waitForConfirmation(String ip) {
         while (true) {
             for (RequestInfo info : requestedConnections)
                 if (info.getIp().equals(ip))
-                    return info.getAccepted();
+                    return info.getResponseType();
         }
+        // return REQUEST_RESPONSE_TYPE.TIMEOUT;
 
     }
 }

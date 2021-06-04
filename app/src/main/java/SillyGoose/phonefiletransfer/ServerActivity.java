@@ -9,9 +9,7 @@ import android.widget.Toast;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.zip.ZipFile;
 
 import RequestList.RequestAdapter;
@@ -26,7 +24,6 @@ public class ServerActivity extends Activity {
     private static final int PORT = 8080;
     private HttpServer server = null;
     private RecyclerView requestRecyclerView;
-//    private ExecutorService executorService;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

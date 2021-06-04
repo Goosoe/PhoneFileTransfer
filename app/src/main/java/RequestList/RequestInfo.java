@@ -2,10 +2,12 @@ package RequestList;
 
 import java.util.Objects;
 
+import Server.REQUEST_RESPONSE_TYPE;
+
 public class RequestInfo {
     private String ip;
     private String hostname;
-    private boolean accepted;
+    private REQUEST_RESPONSE_TYPE responseType;
 
     /**
      * Accepted param is initialized as false when invoking this constructor
@@ -15,11 +17,11 @@ public class RequestInfo {
     public RequestInfo(String ip, String hostname){
         this.ip = ip;
         this.hostname = hostname;
-        this.accepted = false;
+        this.responseType = REQUEST_RESPONSE_TYPE.DENIED;
     }
-    public RequestInfo(String ip, String hostname, boolean accepted){
+    public RequestInfo(String ip, String hostname, REQUEST_RESPONSE_TYPE responseType){
         this(ip, hostname);
-        this.accepted = accepted;
+        this.responseType = responseType;
     }
 
     public String getHostname() {
@@ -30,12 +32,12 @@ public class RequestInfo {
         return ip;
     }
 
-    public boolean getAccepted(){
-        return accepted;
+    public REQUEST_RESPONSE_TYPE getResponseType(){
+        return responseType;
     }
 
-    public void setAccepted(boolean accepted){
-        this.accepted = accepted;
+    public void setResponseType(REQUEST_RESPONSE_TYPE type){
+        this.responseType = type;
     }
 
     @Override
@@ -43,13 +45,13 @@ public class RequestInfo {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RequestInfo that = (RequestInfo) o;
-        return accepted == that.accepted &&
+        return responseType == that.responseType &&
                 ip.equals(that.ip) &&
                 hostname.equals(that.hostname);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(ip, hostname, accepted);
+        return Objects.hash(ip, hostname, responseType);
     }
 }

@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
+import Server.REQUEST_RESPONSE_TYPE;
 import SillyGoose.phonefiletransfer.R;
 import SillyGoose.phonefiletransfer.ServerActivity;
 import Utils.Utils;
@@ -128,7 +129,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
         }
 
         private void acceptConnection() {
-            info.setAccepted(true);
+            info.setResponseType(REQUEST_RESPONSE_TYPE.ACCEPTED);
             ((ServerActivity) mainView.getContext()).notifyServer(info);
             adapter.removeItem(this.getBindingAdapterPosition());
         }
