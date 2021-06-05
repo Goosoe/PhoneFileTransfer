@@ -1,37 +1,60 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="@dimen/list_element_height"
-    android:gravity="center_vertical">
+    android:gravity="center_vertical"
+    android:minWidth="200dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginStart="16dp"
         android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:minWidth="150dp"
-            android:text="Bruh" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraintLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-        <ImageButton
-            android:id="@+id/denyConn"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:maxWidth="50dp"
-            android:src="@android:drawable/btn_dialog"
-            app:srcCompat="@android:drawable/btn_dialog" />
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:minWidth="150dp"
+                android:text="Bruh"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/denyConn"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageButton
-            android:id="@+id/acceptConn"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:maxWidth="50dp"
-            android:src="@android:drawable/checkbox_on_background"
-            app:srcCompat="@android:drawable/checkbox_on_background" />
+            <ImageButton
+                android:id="@+id/denyConn"
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:maxWidth="75dp"
+                android:minWidth="25dp"
+                android:src="@android:drawable/btn_dialog"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/acceptConn"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0"
+                app:srcCompat="@android:drawable/btn_dialog" />
+
+            <ImageButton
+                android:id="@+id/acceptConn"
+                android:layout_width="75dp"
+                android:layout_height="75dp"
+                android:maxWidth="75dp"
+                android:minWidth="25dp"
+                android:src="@android:drawable/checkbox_on_background"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@android:drawable/checkbox_on_background" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
     </LinearLayout>
 
 </FrameLayout>
