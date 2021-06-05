@@ -24,7 +24,6 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
 
     private List<RequestInfo> localDataSet;
     private Context context;
-    private final static int MAX_REQUESTS = 10;
     /**
      * Initialize the dataset of the Adapter.
      *
@@ -53,14 +52,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
             }
             removeItem(currentPos);
         });
-        
-        //this needs activity because otherwise it has no access to an ui thread to update
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                notifyItemInserted(currentPos);
-            }
-        });
+        activity.runOnUiThread(() -> notifyItemInserted(currentPos));
     }
 
     /**
@@ -76,8 +68,6 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
             }
         });
     }
-
-
 
     // Create new views (invoked by the layout manager)
     @Override
@@ -113,7 +103,6 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
         private View mainView;
         private RequestAdapter adapter;
 
-
         public RequestView(View view, RequestAdapter adapter) {
             super(view);
             this.mainView = view;
@@ -123,7 +112,6 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
             acceptConnBt = (ImageButton) view.findViewById(R.id.acceptConn);
             prepareButtons();
         }
-
 
         public TextView getTextView() {
             return textView;

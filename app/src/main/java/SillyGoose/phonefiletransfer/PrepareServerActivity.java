@@ -21,7 +21,6 @@ import Utils.UriUtils;
 public class PrepareServerActivity extends Activity {
 
     private String outputZipPath;
-//    private ProgressBar pBar;
     private TextView progressText;
     private int filesZipped;
     private int totalFilesToZip;
@@ -30,7 +29,6 @@ public class PrepareServerActivity extends Activity {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.prepare_server_layout);
         this.totalFilesToZip = 0;
-//        pBar = findViewById(R.id.progressBar);
         progressText = findViewById(R.id.progressText);
         updateText();
         ExecutorService executorService = Executors.newFixedThreadPool(1);
@@ -105,6 +103,7 @@ public class PrepareServerActivity extends Activity {
     private void updateText(){
         this.runOnUiThread(() ->{
             String text = "Reading files: ";
+            //TODO: magic string
             progressText.setText(text + filesZipped + "/" + totalFilesToZip);
             if(filesZipped == totalFilesToZip)
                 progressText.setText("Zipping Files");

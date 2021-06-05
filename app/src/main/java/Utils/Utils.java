@@ -14,8 +14,10 @@ import com.karumi.dexter.listener.single.PermissionListener;
 public class Utils {
     //TODO: PUT IN CONFIG FILE (MILLISECONDS)
     public static final long WAIT_CONFIRMATION_TIMEOUT = 10000;
+    //MAX SIMULTANEOUS REQUESTS OF DIFFERENT DEVICES
+    public static final int MAX_REQUESTS = 5;
 
-    //TODO: static strings on this function
+    //TODO: magic strings on this function
     public static void askForPermissions(Context context){
         Dexter.withContext(context)
                 .withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)

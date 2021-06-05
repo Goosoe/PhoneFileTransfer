@@ -10,8 +10,6 @@ public class RequestInfo {
     private String hostname;
     private REQUEST_RESPONSE_TYPE responseType;
     private Thread serveThread;
-    private HttpServer server;
-
     /**
      * Accepted param is initialized as false when invoking this constructor
      * @param ip
@@ -26,10 +24,9 @@ public class RequestInfo {
         this(ip, hostname);
         this.responseType = responseType;
     }
-    public RequestInfo(String ip, String hostname, Thread serveThread, HttpServer server){
+    public RequestInfo(String ip, String hostname, Thread serveThread){
         this(ip, hostname);
         this.serveThread = serveThread;
-        this.server = server;
     }
 
     public String getHostname() {
@@ -52,10 +49,6 @@ public class RequestInfo {
         return serveThread;
     }
 
-    public HttpServer getServer() {
-        return server;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -64,12 +57,11 @@ public class RequestInfo {
         return responseType == that.responseType &&
                 ip.equals(that.ip) &&
                 hostname.equals(that.hostname) &&
-                server.equals(that.server) &&
                 serveThread.equals(that.serveThread);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(ip, hostname, responseType, server, serveThread);
+        return Objects.hash(ip, hostname, responseType, serveThread);
     }
 }

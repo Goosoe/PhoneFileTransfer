@@ -19,8 +19,6 @@ public class HttpServer extends NanoHTTPD {
     private final Context context;
     private String pathOfFileToSend;
     private HashSet<String> openSessions;
-    //Has the info of the open sessions
-//    private final HashSet<RequestInfo> requestedConnections;
     private final String ip;
     private int numberOfFiles;
 
@@ -52,6 +50,11 @@ public class HttpServer extends NanoHTTPD {
 
     @Override
     public Response serve(IHTTPSession session) {
+        if(openSessions.size() > Utils.MAX_REQUESTS) {
+            final String html = "<html><p> The device is already serving the maximum number of requests defined. Please try again in a moment</p></html>";
+            return newFixedLengthResponse(Response.Status.OK, "text/html", html);
+        }
+
         if(openSessions.contains(session.getRemoteIpAddress())){
             final String html = "<html><p> There is already an ongoing request from this device to the server. Please try again in a minute </p></html>";
             return newFixedLengthResponse(Response.Status.OK, "text/html", html);
@@ -62,13 +65,9 @@ public class HttpServer extends NanoHTTPD {
         switch (session.getMethod()){
             case GET:
                 if(downloadButtonPressed(session)) {
-                    //TODO: if this request already exists in http server, it can drop the connection
-
-                    //if request accepted
                     switch (waitForConfirmation(newRequest(session.getRemoteHostName(), session.getRemoteIpAddress()))) {
                         case ACCEPTED:
                             try {
-
                                 File zippedFile = new File(pathOfFileToSend);
                                 if (zippedFile == null) {
                                     res = newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "Error sending the selected files or no files were selected for transfer");
@@ -76,7 +75,6 @@ public class HttpServer extends NanoHTTPD {
                                 FileInputStream fis = new FileInputStream(zippedFile);
                                 res = newFixedLengthResponse(Response.Status.OK, "application/zip", fis, zippedFile.length());
                                 res.addHeader("Content-Disposition", "attachment; filename=\"PhoneFileTransfer.zip\"");
-//                                removeRequest(session.getRemoteIpAddress());
 
                             } catch (FileNotFoundException e) {
                                 e.printStackTrace();
@@ -84,13 +82,11 @@ public class HttpServer extends NanoHTTPD {
                             break;
 
                         case DENIED:
-//                            removeRequest(session.getRemoteIpAddress());
                             //TODO: magic string
                             html = "<html><p> Request denied by the server/phone user :(</p></html>";
                             res = newFixedLengthResponse(Response.Status.OK, "text/html", html);
                             break;
                         case TIMEOUT:
-//                            removeRequest(session.getRemoteIpAddress());
                             //TODO: magic string
                             html = "<html><p> Request timed out, please request again </p>" +
                                     "<form action=\"\" method=\"get\"><button name=\"" + context.getString(R.string.download_button_val) + "\">Get Files</button></form>" +
@@ -120,20 +116,9 @@ public class HttpServer extends NanoHTTPD {
         return res;
     }
 
-//    public void notifyConnectionRequest(RequestInfo info) {
-//        if(!requestedConnections.contains(info))
-//            requestedConnections.add(info);
-//    }
 
     public void onResume(){
-//        requestedConnections.clear();
     }
-
-//    private void removeRequest(String ip) {
-//        for (RequestInfo info : requestedConnections)
-//            if (info.getIp().equals(ip))
-//                requestedConnections.remove(info);
-//    }
 
     /**
      * @param hostname
@@ -141,7 +126,7 @@ public class HttpServer extends NanoHTTPD {
      * @return id of the request
      */
     private RequestInfo newRequest(String hostname, String ip) {
-        RequestInfo request = new RequestInfo(ip, hostname, Thread.currentThread(),this);
+        RequestInfo request = new RequestInfo(ip, hostname, Thread.currentThread());
         ((ServerActivity)context).newRequest(request);
         return request;
     }
@@ -149,8 +134,6 @@ public class HttpServer extends NanoHTTPD {
     private boolean downloadButtonPressed(IHTTPSession session){
         return session.getParameters().containsKey(context.getString(R.string.download_button_val));
     }
-
-
 
     private REQUEST_RESPONSE_TYPE waitForConfirmation(RequestInfo request) {
         try {
@@ -161,8 +144,6 @@ public class HttpServer extends NanoHTTPD {
         } catch (InterruptedException e) {
             //does nothing
         }
-
         return request.getResponseType();
-
     }
 }

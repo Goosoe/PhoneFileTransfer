@@ -81,9 +81,6 @@ public class ServerActivity extends Activity {
         ((RequestAdapter) requestRecyclerView.getAdapter()).addItem(request, this);
     }
 
-//    public void notifyServer(RequestInfo info){
-//        server.notifyConnectionRequest(info);
-//    }
     private void startServer() {
         //TODO: Null checks
         int fileNumber = -1;
@@ -103,7 +100,6 @@ public class ServerActivity extends Activity {
             e.printStackTrace();
         }
 
-
         ip = ServerUtils.getIPAddress(true);
 
         TextView serverDirections = findViewById(R.id.serverDirections);
@@ -120,10 +116,4 @@ public class ServerActivity extends Activity {
             server = new HttpServer(ip, PORT, this, output, fileNumber);
         }
     }
-
-    /**
-     * This function checks for received intents from navigator apps which have the URI's of the desired files to send
-     * @return a String[] of the URI's to send or null if error/none
-     */
-
 }
