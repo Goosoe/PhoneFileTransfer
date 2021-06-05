@@ -42,7 +42,7 @@ public class UriUtils {
 //                final String type = split[0];
 
                 String fullPath = getPathFromExtSD(split);
-                if (fullPath != "") {
+                if (!fullPath.equals("")) {
                     return fullPath;
                 } else {
                     return null;
@@ -56,9 +56,7 @@ public class UriUtils {
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     final String id;
-                    Cursor cursor = null;
-                    try {
-                        cursor = context.getContentResolver().query(uri, new String[]{MediaStore.MediaColumns.DISPLAY_NAME}, null, null, null);
+                    try (Cursor cursor = context.getContentResolver().query(uri, new String[]{MediaStore.MediaColumns.DISPLAY_NAME}, null, null, null)) {
                         if (cursor != null && cursor.moveToFirst()) {
                             String fileName = cursor.getString(0);
                             String path = Environment.getExternalStorageDirectory().toString() + "/Download/" + fileName;
@@ -66,10 +64,6 @@ public class UriUtils {
                                 return path;
                             }
                         }
-                    }
-                    finally {
-                        if (cursor != null)
-                            cursor.close();
                     }
                     id = DocumentsContract.getDocumentId(uri);
                     if (!TextUtils.isEmpty(id)) {
@@ -82,7 +76,7 @@ public class UriUtils {
                         };
                         for (String contentUriPrefix : contentUriPrefixesToTry) {
                             try {
-                                final Uri contentUri = ContentUris.withAppendedId(Uri.parse(contentUriPrefix), Long.valueOf(id));
+                                final Uri contentUri = ContentUris.withAppendedId(Uri.parse(contentUriPrefix), Long.parseLong(id));
 
 
                                 return getDataColumn(context, contentUri, null, null);
@@ -103,7 +97,7 @@ public class UriUtils {
                     }
                     try {
                         contentUri = ContentUris.withAppendedId(
-                                Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+                                Uri.parse("content://downloads/public_downloads"), Long.parseLong(id));
                     }
                     catch (NumberFormatException e) {
                         e.printStackTrace();
@@ -197,9 +191,6 @@ public class UriUtils {
             }
         }
 
-
-
-
         return null;
     }
 
@@ -244,13 +235,12 @@ public class UriUtils {
         if (fileExists(fullPath)) {
             return fullPath;
         }
-
+        
         return "";
     }
 
     private String getDriveFilePath(Uri uri) {
-        Uri returnUri = uri;
-        Cursor returnCursor = context.getContentResolver().query(returnUri, null, null, null, null);
+        Cursor returnCursor = context.getContentResolver().query(uri, null, null, null, null);
         /*
          * Get the column indexes of the data in the Cursor,
          *     * move to the first row in the Cursor, get the data,
@@ -266,7 +256,7 @@ public class UriUtils {
             InputStream inputStream = context.getContentResolver().openInputStream(uri);
             FileOutputStream outputStream = new FileOutputStream(file);
             int read = 0;
-            int maxBufferSize = 1 * 1024 * 1024;
+            int maxBufferSize = 1024 * 1024;
             int bytesAvailable = inputStream.available();
 
             //int bufferSize = 1024;
@@ -282,6 +272,7 @@ public class UriUtils {
             Log.e("File Path", "Path " + file.getPath());
             Log.e("File Size", "Size " + file.length());
         } catch (Exception e) {
+            e.printStackTrace();
             Log.e("Exception", e.getMessage());
         }
         return file.getPath();
@@ -294,9 +285,7 @@ public class UriUtils {
      * @return
      */
     private String copyFileToInternalStorage(Uri uri,String newDirName) {
-        Uri returnUri = uri;
-
-        Cursor returnCursor = context.getContentResolver().query(returnUri, new String[]{
+        Cursor returnCursor = context.getContentResolver().query(uri, new String[]{
                 OpenableColumns.DISPLAY_NAME,OpenableColumns.SIZE
         }, null, null, null);
 
@@ -311,7 +300,7 @@ public class UriUtils {
         returnCursor.moveToFirst();
         String name = (returnCursor.getString(nameIndex));
         String size = (Long.toString(returnCursor.getLong(sizeIndex)));
-
+        returnCursor.close();
         File output;
         if(!newDirName.equals("")) {
             File dir = new File(context.getFilesDir() + "/" + newDirName);
@@ -338,7 +327,7 @@ public class UriUtils {
 
         }
         catch (Exception e) {
-
+            e.printStackTrace();
             Log.e("Exception", e.getMessage());
         }
 

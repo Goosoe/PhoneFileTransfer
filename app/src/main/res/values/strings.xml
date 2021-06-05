@@ -5,8 +5,12 @@
         Afterwards, press the share button and select this App. This will prompt the start of the server and will provide an ip to connect.
         Use a browser in the device you pretend to download the files and put that ip in the address bar.</string>
 
-    <string name="connect">Please insert in your browser address bar:\n %1$s </string>
+    <string name="connect">Use this IP on a browser to request a download: </string>
     <string name="close_connection">To close the connection just turn off the app or press the button.</string>
     <string name="close_connection_button">Close Connection</string>
+    <string name="files_info"> Sharing %1$s file(s)</string>
+    <string name="download_button_val"> Download</string>
+    <string name="requests_title"> Requests:</string>
 
+<!--    %1$s-->
 </resources>

@@ -1,18 +1,23 @@
 package Server;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
 import org.apache.commons.compress.archivers.zip.ParallelScatterZipCreator;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryRequest;
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntryRequestSupplier;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.parallel.InputStreamSupplier;
 import org.apache.commons.io.FileUtils;
 
-public class Utils {
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
+public class ServerUtils {
 
     public static File zipFiles(List<String> paths, String outputZipPath){
         if(paths.size() == 1 && paths.get(0).contains(".zip")) {
@@ -47,10 +52,10 @@ public class Utils {
         }
         try {
             File outputFile = new File(outputZipPath);
-            System.out.println("create file: " + outputFile.createNewFile());
             outputStream = new ZipArchiveOutputStream(outputFile);
             zipCreator.writeTo(outputStream);
             outputStream.finish();
+            outputStream.close();
             return outputFile;
         } catch (IOException | InterruptedException | ExecutionException e) {
             e.printStackTrace();
@@ -95,13 +100,16 @@ public class Utils {
      * @param cacheDir = context.getCacheDir()
      */
     public static void cleanCachedZips(File cacheDir) {
+        //TODO: MT too?
+        System.out.println("cached size " + cacheDir.listFiles().length);
+        //this can be MT
         for(File f : cacheDir.listFiles()){
             String[] nameArray = f.getName().split("\\.");
-            if(nameArray.length > 0 && nameArray[nameArray.length - 1].equals("zip")){
+            if(f.getName().contains("parallelscatter") || (nameArray.length > 0 && nameArray[nameArray.length - 1].equals("zip"))){
                 f.delete();
-                System.out.println(f.getName() + " deleted");
             }
         }
+        System.out.println("cached size after " + cacheDir.listFiles().length);
     }
 
 
