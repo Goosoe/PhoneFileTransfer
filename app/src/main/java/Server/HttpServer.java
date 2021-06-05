@@ -11,6 +11,7 @@ import java.util.HashSet;
 import RequestList.RequestInfo;
 import SillyGoose.phonefiletransfer.R;
 import SillyGoose.phonefiletransfer.ServerActivity;
+import Utils.Utils;
 import fi.iki.elonen.NanoHTTPD;
 
 public class HttpServer extends NanoHTTPD {
@@ -18,7 +19,7 @@ public class HttpServer extends NanoHTTPD {
     private final Context context;
     private String pathOfFileToSend;
     //Has the info of the open sessions
-    private final HashSet<RequestInfo> requestedConnections;
+//    private final HashSet<RequestInfo> requestedConnections;
     private final String ip;
     private int numberOfFiles;
 
@@ -27,7 +28,7 @@ public class HttpServer extends NanoHTTPD {
         this.context = context;
         this.pathOfFileToSend = pathOfFileToSend;
         this.ip = ip;
-        this.requestedConnections = new HashSet<>();
+//        this.requestedConnections = new HashSet<>();
         this.numberOfFiles = 0;
         try {
             start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
@@ -55,13 +56,15 @@ public class HttpServer extends NanoHTTPD {
 //            return newFixedLengthResponse(Response.Status.OK, "text/html", html);
 //        }
 //        openSessions.add(session.getRemoteIpAddress());
+        System.out.println("new serve");
+        System.out.println(Thread.currentThread().getName());
         switch (session.getMethod()){
             case GET:
                 if(downloadButtonPressed(session)) {
                     //TODO: if this request already exists in http server, it can drop the connection
-                    newRequest(session.getRemoteHostName(), session.getRemoteIpAddress());
+
                     //if request accepted
-                    switch (waitForConfirmation(session.getRemoteIpAddress())) {
+                    switch (waitForConfirmation(newRequest(session.getRemoteHostName(), session.getRemoteIpAddress()))) {
                         case ACCEPTED:
                             try {
 
@@ -72,7 +75,7 @@ public class HttpServer extends NanoHTTPD {
                                 FileInputStream fis = new FileInputStream(zippedFile);
                                 NanoHTTPD.Response res = newFixedLengthResponse(Response.Status.OK, "application/zip", fis, zippedFile.length());
                                 res.addHeader("Content-Disposition", "attachment; filename=\"PhoneFileTransfer.zip\"");
-                                removeRequest(session.getRemoteIpAddress());
+//                                removeRequest(session.getRemoteIpAddress());
                                 return res;
 
                             } catch (FileNotFoundException e) {
@@ -81,13 +84,13 @@ public class HttpServer extends NanoHTTPD {
                             break;
 
                         case DENIED:
-                            removeRequest(session.getRemoteIpAddress());
+//                            removeRequest(session.getRemoteIpAddress());
                             //TODO: magic string
                             final String html = "<html><p> Request denied by the server/phone user :(</p></html>";
                             return newFixedLengthResponse(Response.Status.OK, "text/html", html);
 
                         case TIMEOUT:
-                            removeRequest(session.getRemoteIpAddress());
+//                            removeRequest(session.getRemoteIpAddress());
                             //TODO: magic string
                             final String html1 = "<html><p> Request timed out, please request again </p>" +
                                     "<form action=\"\" method=\"get\"><button name=\"" + context.getString(R.string.download_button_val) + "\">Get Files</button></form>" +
@@ -109,35 +112,35 @@ public class HttpServer extends NanoHTTPD {
             case POST:
                 break;
             default:
-                //TODO: magic string
-                return newFixedLengthResponse("Whoops, something went wrong :(");
         }
         //TODO: magic string
         return  newFixedLengthResponse("Something went wrong :(");
     }
 
-    public void notifyConnectionRequest(RequestInfo info) {
-        if(!requestedConnections.contains(info))
-            requestedConnections.add(info);
-    }
+//    public void notifyConnectionRequest(RequestInfo info) {
+//        if(!requestedConnections.contains(info))
+//            requestedConnections.add(info);
+//    }
 
     public void onResume(){
-        requestedConnections.clear();
+//        requestedConnections.clear();
     }
 
-    private void removeRequest(String ip) {
-        for (RequestInfo info : requestedConnections)
-            if (info.getIp().equals(ip))
-                requestedConnections.remove(info);
-    }
+//    private void removeRequest(String ip) {
+//        for (RequestInfo info : requestedConnections)
+//            if (info.getIp().equals(ip))
+//                requestedConnections.remove(info);
+//    }
 
     /**
      * @param hostname
      * @param ip
      * @return id of the request
      */
-    private void newRequest(String hostname, String ip) {
-        ((ServerActivity)context).newRequest(hostname, ip);
+    private RequestInfo newRequest(String hostname, String ip) {
+        RequestInfo request = new RequestInfo(ip, hostname, Thread.currentThread(),this);
+        ((ServerActivity)context).newRequest(request);
+        return request;
     }
 
     private boolean downloadButtonPressed(IHTTPSession session){
@@ -146,13 +149,15 @@ public class HttpServer extends NanoHTTPD {
 
 
 
-    private REQUEST_RESPONSE_TYPE waitForConfirmation(String ip) {
-        while (true) {
-            for (RequestInfo info : requestedConnections)
-                if (info.getIp().equals(ip))
-                    return info.getResponseType();
+    private REQUEST_RESPONSE_TYPE waitForConfirmation(RequestInfo request) {
+        try {
+            Thread.sleep(Utils.WAIT_CONFIRMATION_TIMEOUT);
+            request.setResponseType(REQUEST_RESPONSE_TYPE.TIMEOUT);
+        } catch (InterruptedException e) {
+            //does nothing
         }
-        // return REQUEST_RESPONSE_TYPE.TIMEOUT;
+
+        return request.getResponseType();
 
     }
 }

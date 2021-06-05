@@ -1,17 +1,19 @@
 package RequestList;
 
 import android.app.Activity;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import Server.REQUEST_RESPONSE_TYPE;
 import SillyGoose.phonefiletransfer.R;
@@ -21,28 +23,32 @@ import Utils.Utils;
 public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestView> {
 
     private List<RequestInfo> localDataSet;
+    private Context context;
     private final static int MAX_REQUESTS = 10;
     /**
      * Initialize the dataset of the Adapter.
      *
      */
-    public RequestAdapter(){
-        localDataSet = new ArrayList<>();
+    public RequestAdapter(Context context){
+        this.context = context;
+        this.localDataSet = new ArrayList<>();
     }
 
-    /**
-     * Adds an item from the RecyclerViewList
-     * @param hostname -
-     * @param ip
-     * @param activity - current activity
-     */
-    public void addItem(String hostname, String ip, Activity activity){
-        RequestInfo newRequest = new RequestInfo(ip, hostname);
-        if(localDataSet.contains(newRequest))
-            return;
 
-        localDataSet.add(new RequestInfo(ip, hostname));
+    public void addItem(RequestInfo request, Activity activity){
+        localDataSet.add(request);
         int currentPos = localDataSet.size()- 1;
+
+        //TODO: visual timeout of the card needs a different solution
+        Executors.newSingleThreadExecutor().submit(() -> {
+            try {
+                Thread.sleep(Utils.WAIT_CONFIRMATION_TIMEOUT);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            removeItem(currentPos);
+        });
+        
         //this needs activity because otherwise it has no access to an ui thread to update
         activity.runOnUiThread(new Runnable() {
             @Override
@@ -55,22 +61,15 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
     /**
      * Removes an item from the RecyclerViewList
      * @param pos
-     * @param activity
      */
-    public void removeItem(int pos, Activity activity){
+    protected void removeItem(int pos){
         localDataSet.remove(pos);
-        //this needs activity because otherwise it has no access to an ui thread
-        activity.runOnUiThread(new Runnable() {
+        ((Activity)context).runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 notifyItemRemoved(pos);
             }
         });
-    }
-    protected void removeItem(int pos){
-        localDataSet.remove(pos);
-        //this does not need activity since its invoked by RequestView, which has access to ui thread.
-        notifyItemRemoved(pos);
     }
 
 
@@ -102,12 +101,13 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
      * (custom ViewHolder).
      */
     public static class RequestView extends RecyclerView.ViewHolder {
-        private RequestInfo info;
+        private RequestInfo request;
         private final TextView textView;
         private final ImageButton denyConn;
         private final ImageButton acceptConnBt;
         private View mainView;
         private RequestAdapter adapter;
+
 
         public RequestView(View view, RequestAdapter adapter) {
             super(view);
@@ -119,6 +119,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
             prepareButtons();
         }
 
+
         public TextView getTextView() {
             return textView;
         }
@@ -129,21 +130,25 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
         }
 
         private void acceptConnection() {
-            info.setResponseType(REQUEST_RESPONSE_TYPE.ACCEPTED);
-            ((ServerActivity) mainView.getContext()).notifyServer(info);
-            adapter.removeItem(this.getBindingAdapterPosition());
+            answerRequest(REQUEST_RESPONSE_TYPE.ACCEPTED);
         }
 
         private void denyConnection(){
-            ((ServerActivity) mainView.getContext()).notifyServer(info);
-            adapter.removeItem(this.getBindingAdapterPosition());
+            answerRequest(REQUEST_RESPONSE_TYPE.DENIED);
         }
 
-        public void prepareView(RequestInfo info) {
-            this.info = info;
-            String text = info.getHostname() + "\n" + info.getIp();
+        public void prepareView(RequestInfo request) {
+            this.request = request;
+            String text = request.getHostname() + "\n" + request.getIp();
             textView.setText(text);
+        }
 
+        private void answerRequest(REQUEST_RESPONSE_TYPE value) {
+            if (request.getServeThread().isAlive()) {
+                request.setResponseType(value);
+                request.getServeThread().interrupt();
+            }
+            adapter.removeItem(this.getBindingAdapterPosition());
         }
     }
 }

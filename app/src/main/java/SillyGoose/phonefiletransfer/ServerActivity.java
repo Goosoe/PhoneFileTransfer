@@ -32,7 +32,7 @@ public class ServerActivity extends Activity {
         this.setContentView(R.layout.server_layout);
         requestRecyclerView = this.findViewById(R.id.requestListView);
         requestRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        requestRecyclerView.setAdapter(new RequestAdapter());
+        requestRecyclerView.setAdapter(new RequestAdapter(this));
         ImageButton b = this.findViewById(R.id.powerButton);
         b.setOnClickListener(listener -> super.finish());
 
@@ -77,13 +77,13 @@ public class ServerActivity extends Activity {
         ServerUtils.cleanCachedZips(this.getCacheDir());
     }
 
-    public void newRequest(String hostname, String ip){
-        ((RequestAdapter) requestRecyclerView.getAdapter()).addItem(hostname, ip,this);
+    public void newRequest(RequestInfo request){
+        ((RequestAdapter) requestRecyclerView.getAdapter()).addItem(request, this);
     }
 
-    public void notifyServer(RequestInfo info){
-        server.notifyConnectionRequest(info);
-    }
+//    public void notifyServer(RequestInfo info){
+//        server.notifyConnectionRequest(info);
+//    }
     private void startServer() {
         //TODO: Null checks
         int fileNumber = -1;
