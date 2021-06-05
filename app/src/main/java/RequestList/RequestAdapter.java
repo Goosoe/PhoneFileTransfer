@@ -43,6 +43,11 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
         Executors.newSingleThreadExecutor().submit(() -> {
             try {
                 Thread.sleep(Utils.WAIT_CONFIRMATION_TIMEOUT);
+                if (request.getServeThread().isAlive()) {
+                    request.setResponseType(REQUEST_RESPONSE_TYPE.TIMEOUT);
+                    request.getServeThread().interrupt();
+                }
+                removeItem(currentPos);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
