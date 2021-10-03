@@ -50,6 +50,7 @@ public class HttpServer extends NanoHTTPD {
 
     @Override
     public Response serve(IHTTPSession session) {
+        //TODO: Make a decent java html file
         if(openSessions.size() > Utils.MAX_REQUESTS) {
             final String html = "<html><p> The device is already serving the maximum number of requests defined. Please try again in a moment</p></html>";
             return newFixedLengthResponse(Response.Status.OK, "text/html", html);

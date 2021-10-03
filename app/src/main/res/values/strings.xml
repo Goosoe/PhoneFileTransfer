@@ -11,6 +11,7 @@
     <string name="files_info"> Sharing %1$s file(s)</string>
     <string name="download_button_val"> Download</string>
     <string name="requests_title"> Requests:</string>
+    <string name="requests_checkBox"> Accept all requests</string>
 
 <!--    %1$s-->
 </resources>

@@ -16,6 +16,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import Server.REQUEST_RESPONSE_TYPE;
+import Server.ServerUtils;
 import SillyGoose.phonefiletransfer.R;
 import SillyGoose.phonefiletransfer.ServerActivity;
 import Utils.Utils;
@@ -35,6 +36,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
 
 
     public void addItem(RequestInfo request, Activity activity){
+
         localDataSet.add(request);
         int currentPos = localDataSet.size()- 1;
 
@@ -137,10 +139,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
         }
 
         private void answerRequest(REQUEST_RESPONSE_TYPE value) {
-            if (request.getServeThread().isAlive()) {
-                request.setResponseType(value);
-                request.getServeThread().interrupt();
-            }
+            ServerUtils.answerRequest(request, value);
             adapter.removeItem(this.getBindingAdapterPosition());
         }
     }

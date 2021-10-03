@@ -2,6 +2,8 @@ package SillyGoose.phonefiletransfer;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.WindowManager;
+import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -15,6 +17,7 @@ import java.util.zip.ZipFile;
 import RequestList.RequestAdapter;
 import RequestList.RequestInfo;
 import Server.HttpServer;
+import Server.REQUEST_RESPONSE_TYPE;
 import Server.ServerUtils;
 import Utils.Utils;
 
@@ -35,7 +38,7 @@ public class ServerActivity extends Activity {
         requestRecyclerView.setAdapter(new RequestAdapter(this));
         ImageButton b = this.findViewById(R.id.powerButton);
         b.setOnClickListener(listener -> super.finish());
-
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     @Override
@@ -72,13 +75,21 @@ public class ServerActivity extends Activity {
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        ServerUtils.cleanCachedZips(this.getCacheDir());
+    protected void onStop() {
+        super.onStop();
+        ServerUtils.cleanStorage(this);
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     public void newRequest(RequestInfo request){
-        ((RequestAdapter) requestRecyclerView.getAdapter()).addItem(request, this);
+        CheckBox cBox = findViewById(R.id.request_checkBox);
+        //if the checkbox is ticked, there is no need to create a request card
+        if(cBox.isChecked()){
+            ServerUtils.answerRequest(request,REQUEST_RESPONSE_TYPE.ACCEPTED);
+        }
+        else {
+            ((RequestAdapter) requestRecyclerView.getAdapter()).addItem(request, this);
+        }
     }
 
     private void startServer() {
@@ -104,14 +115,16 @@ public class ServerActivity extends Activity {
 
         TextView serverDirections = findViewById(R.id.serverDirections);
         serverDirections.setText(R.string.connect);
+
         TextView ipText = findViewById(R.id.serverIp);
         ipText.setText(ip.concat(":").concat(String.valueOf(PORT)));
+
         TextView fileInfo = findViewById(R.id.fileInfo);
         fileInfo.setText(getString(R.string.files_info, String.valueOf(fileNumber)));
 
+        CheckBox cBox = findViewById(R.id.request_checkBox);
+        cBox.setText(R.string.requests_checkBox);
 
-        //TODO: make this happen in a thread, so the zipping can happen. While that thread is
-        // running make a secondary thread to rotate an image button
         if(server == null) {
             server = new HttpServer(ip, PORT, this, output, fileNumber);
         }

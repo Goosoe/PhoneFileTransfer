@@ -17,6 +17,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import RequestList.RequestInfo;
+import SillyGoose.phonefiletransfer.ServerActivity;
+
 public class ServerUtils {
 
     public static File zipFiles(List<String> paths, String outputZipPath){
@@ -96,20 +99,38 @@ public class ServerUtils {
     }
 
     /**
-     * Removes all zip files from context.getCacheDir()
-     * @param cacheDir = context.getCacheDir()
+     * Removes all zip files from context.getCacheDir() and files copied into getFilesDir()
+     * @param activity
      */
-    public static void cleanCachedZips(File cacheDir) {
+    public static void cleanStorage(ServerActivity activity) {
+        if(activity == null)
+            return;
+
+        File cacheDir = activity.getCacheDir();
         //TODO: MT too?
         System.out.println("cached size " + cacheDir.listFiles().length);
-        //this can be MT
-        for(File f : cacheDir.listFiles()){
-            String[] nameArray = f.getName().split("\\.");
-            if(f.getName().contains("parallelscatter") || (nameArray.length > 0 && nameArray[nameArray.length - 1].equals("zip"))){
-                f.delete();
+        if(cacheDir.listFiles() != null) {
+            for (File f : cacheDir.listFiles()) {
+
+                String[] nameArray = f.getName().split("\\.");
+                if (f.getName().contains("parallelscatter") || (nameArray.length > 0 && nameArray[nameArray.length - 1].equals("zip"))) {
+                    f.delete();
+                }
             }
         }
-        System.out.println("cached size after " + cacheDir.listFiles().length);
+        if(activity.getFilesDir().listFiles() != null) {
+            for (File f : activity.getFilesDir().listFiles()) {
+                for (File file : f.listFiles()) {
+                    file.delete();
+                }
+            }
+        }
+    }
+    public static void answerRequest(RequestInfo request, REQUEST_RESPONSE_TYPE value) {
+        if (request.getServeThread().isAlive()) {
+            request.setResponseType(value);
+            request.getServeThread().interrupt();
+        }
     }
 
 
