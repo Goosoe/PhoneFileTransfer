@@ -77,8 +77,13 @@ public class ServerActivity extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
-        ServerUtils.cleanStorage(this);
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ServerUtils.cleanStorage(this);
     }
 
     public void newRequest(RequestInfo request){
