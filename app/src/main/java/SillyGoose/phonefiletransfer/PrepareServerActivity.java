@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import java.util.concurrent.Executors;
 
 import Server.ServerUtils;
 import Utils.UriUtils;
+import Utils.Utils;
 
 public class PrepareServerActivity extends Activity {
 
@@ -28,9 +30,14 @@ public class PrepareServerActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.prepare_server_layout);
-        this.totalFilesToZip = 0;
+
+        if(!Utils.isConnectedToWifi(this)){
+            Toast.makeText(getApplicationContext(), "You are not connected to any local network. Please connect and try again", Toast.LENGTH_LONG).show();
+            finish();
+        }
         progressText = findViewById(R.id.progressText);
         updateText();
+        ServerUtils.cleanStorage(this);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         executorService.submit(() -> {
             outputZipPath = prepareZip(Arrays.asList(checkReceivedIntent()));
@@ -65,7 +72,7 @@ public class PrepareServerActivity extends Activity {
         UriUtils uriUtils = new UriUtils(this.getBaseContext());
         //TODO: Overkill much? - what about 1 core processors? Do they still exist?
         if (uris != null) {
-            ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() / 2);
+            ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
             for (Uri fileUri : uris) {
                 executorService.submit(() -> {
                     filesPaths.add(uriUtils.getPath(fileUri));
@@ -76,7 +83,7 @@ public class PrepareServerActivity extends Activity {
             String[] itemsArray = new String[filesPaths.size()];
             executorService.shutdown();
             while (!executorService.isTerminated()){
-                //TODO: do nothing
+                //does nothing
             }
             updateText();
             return filesPaths.toArray(itemsArray);

@@ -3,7 +3,7 @@
 
     <string name="how_to_use">To use this app just use your preferred file navigator app (e.g. your default navigator or gallery if you want to share photos) and select the files you want to share.
         Afterwards, press the share button and select this App. This will prompt the start of the server and will provide an ip to connect.
-        Use a browser in the device you pretend to download the files and put that ip in the address bar.</string>
+        Use a browser in the device you pretend to download the files and put that ip in the address bar. Must be connected to a local network/wi-fi.</string>
 
     <string name="connect">Use this IP on a browser to request a download: </string>
     <string name="close_connection">To close the connection just turn off the app or press the button.</string>

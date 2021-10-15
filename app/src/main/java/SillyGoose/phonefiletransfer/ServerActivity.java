@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.zip.ZipFile;
 
 import RequestList.RequestAdapter;
@@ -45,6 +46,10 @@ public class ServerActivity extends Activity {
     protected void onStart() {
         super.onStart();
         Utils.askForPermissions(this);
+        if(!Utils.isConnectedToWifi(this)){
+            Toast.makeText(getApplicationContext(), "You are not connected to any local network. Please connect and try again", Toast.LENGTH_LONG).show();
+            super.finish();
+        }
         startServer();
     }
 
@@ -61,7 +66,6 @@ public class ServerActivity extends Activity {
         super.onResume();
 //        if(executorService != null && !executorService.isTerminated())
 //            executorService.shutdownNow();
-
         if (server != null) {
             server.onResume();
             if (!server.isAlive()) {

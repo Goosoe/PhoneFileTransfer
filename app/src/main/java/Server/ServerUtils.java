@@ -1,5 +1,7 @@
 package Server;
 
+import android.app.Activity;
+
 import org.apache.commons.compress.archivers.zip.ParallelScatterZipCreator;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryRequest;
@@ -18,7 +20,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import RequestList.RequestInfo;
-import SillyGoose.phonefiletransfer.ServerActivity;
 
 public class ServerUtils {
 
@@ -102,7 +103,7 @@ public class ServerUtils {
      * Removes all zip files from context.getCacheDir() and files copied into getFilesDir()
      * @param activity
      */
-    public static void cleanStorage(ServerActivity activity) {
+    public static void cleanStorage(Activity activity) {
         if(activity == null)
             return;
 

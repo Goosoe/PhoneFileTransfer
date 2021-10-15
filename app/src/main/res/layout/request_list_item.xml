@@ -47,11 +47,10 @@
                 android:layout_height="75dp"
                 android:maxWidth="75dp"
                 android:minWidth="25dp"
-                android:src="@android:drawable/checkbox_on_background"
+                android:src="?android:attr/textCheckMark"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@android:drawable/checkbox_on_background" />
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

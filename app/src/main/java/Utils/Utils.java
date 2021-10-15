@@ -1,7 +1,10 @@
 package Utils;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.widget.Toast;
 
 import com.karumi.dexter.Dexter;
@@ -32,6 +35,11 @@ public class Utils {
                     @Override public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {
                         Toast.makeText(context.getApplicationContext(),"Please allow access permissions, otherwise the app won't work", Toast.LENGTH_LONG).show();}
                 }).check();
+    }
+
+    public static boolean isConnectedToWifi(Activity activity){
+        ConnectivityManager connManager = (ConnectivityManager) activity.getSystemService(activity.getApplicationContext().CONNECTIVITY_SERVICE);
+        return connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected();
     }
 
 

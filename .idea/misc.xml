@@ -3,6 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/Miguel/myRepos/PhoneFileTransfer/app/src/main/res/layout/activity_main.xml" value="0.275" />
+        <entry key="..\:/Users/Miguel/myRepos/PhoneFileTransfer/app/src/main/res/layout/prepare_server_layout.xml" value="0.275" />
+        <entry key="..\:/Users/Miguel/myRepos/PhoneFileTransfer/app/src/main/res/layout/request_list_item.xml" value="0.275" />
         <entry key="..\:/Users/Miguel/myRepos/PhoneFileTransfer/app/src/main/res/layout/server_layout.xml" value="0.2114071038251366" />
       </map>
     </option>
