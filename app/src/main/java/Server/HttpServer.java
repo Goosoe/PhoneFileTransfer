@@ -17,15 +17,15 @@ import fi.iki.elonen.NanoHTTPD;
 public class HttpServer extends NanoHTTPD {
 
     private final Context context;
-    private String pathOfFileToSend;
-    private HashSet<String> openSessions;
+    private final String FILE_PATH;
+    private final HashSet<String> openSessions;
     private final String ip;
     private int numberOfFiles;
 
     private HttpServer(String ip , int port, Context context, String pathOfFileToSend) {
         super(ip,port);
         this.context = context;
-        this.pathOfFileToSend = pathOfFileToSend;
+        this.FILE_PATH = pathOfFileToSend;
         this.ip = ip;
         this.openSessions = new HashSet<>();
         this.numberOfFiles = 0;
@@ -69,7 +69,7 @@ public class HttpServer extends NanoHTTPD {
                     switch (waitForConfirmation(newRequest(session.getRemoteHostName(), session.getRemoteIpAddress()))) {
                         case ACCEPTED:
                             try {
-                                File zippedFile = new File(pathOfFileToSend);
+                                File zippedFile = new File(FILE_PATH);
                                 if (zippedFile == null) {
                                     res = newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "Error sending the selected files or no files were selected for transfer");
                                 }

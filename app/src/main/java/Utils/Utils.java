@@ -42,5 +42,10 @@ public class Utils {
         return connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected();
     }
 
+    public static void closeApp(Activity activity, String message){
+        Toast.makeText(activity.getApplicationContext(), message, Toast.LENGTH_LONG).show();
+        activity.finish();
+    }
+
 
 }

@@ -32,8 +32,7 @@ public class PrepareServerActivity extends Activity {
         this.setContentView(R.layout.prepare_server_layout);
 
         if(!Utils.isConnectedToWifi(this)){
-            Toast.makeText(getApplicationContext(), "You are not connected to any local network. Please connect and try again", Toast.LENGTH_LONG).show();
-            finish();
+            Utils.closeApp(this, "You are not connected to any local network. Please connect and try again");
         }
         progressText = findViewById(R.id.progressText);
         updateText();

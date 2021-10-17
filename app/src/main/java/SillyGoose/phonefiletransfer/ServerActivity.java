@@ -112,8 +112,8 @@ public class ServerActivity extends Activity {
             fileNumber = zipFile.size();
             zipFile.close();
             if(fileNumber < 1) {
-                Toast.makeText(getApplicationContext(), "You don't have any files chosen to send", Toast.LENGTH_LONG).show();
-                return;
+                //TODO: Magic string
+                Utils.closeApp(this, "You don't have any files chosen to send");
             }
 
         } catch (IOException e) {

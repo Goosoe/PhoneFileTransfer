@@ -24,6 +24,9 @@ import RequestList.RequestInfo;
 public class ServerUtils {
 
     public static File zipFiles(List<String> paths, String outputZipPath){
+        if(paths.isEmpty())
+            return null;
+        
         if(paths.size() == 1 && paths.get(0).contains(".zip")) {
             File dest = new File(outputZipPath);
             try {
@@ -34,7 +37,7 @@ public class ServerUtils {
             return dest;
         }
 
-        ZipArchiveOutputStream outputStream = null;
+        ZipArchiveOutputStream outputStream;
         ParallelScatterZipCreator zipCreator = new ParallelScatterZipCreator();
 
         for(String path : paths) {
@@ -44,8 +47,8 @@ public class ServerUtils {
                     return new FileInputStream(f);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
+                    return  null;
                 }
-                return  null;
             };
 
             zipCreator.addArchiveEntry(() -> {

@@ -1,59 +1,64 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="@dimen/list_element_height"
     android:gravity="center_vertical"
     android:minWidth="200dp">
 
-    <LinearLayout
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginStart="16dp"
-        android:orientation="horizontal">
+        android:layout_height="match_parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/constraintLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:minWidth="150dp"
+            android:text="@string/connection_request_ip"
+            android:textSize="16sp"
+            app:autoSizeMaxTextSize="22sp"
+            app:autoSizeMinTextSize="10sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/denyConn"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:minWidth="150dp"
-                android:text="Bruh"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/denyConn"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+        <ImageButton
+            android:id="@+id/denyConn"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_marginEnd="10dp"
+            android:adjustViewBounds="true"
+            android:background="?attr/selectableItemBackground"
+            android:maxWidth="75dp"
+            android:minWidth="25dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/crossmark"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/acceptConn"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0"
+            app:srcCompat="@drawable/crossmark"
+            android:contentDescription="@string/deny_connection" />
 
-            <ImageButton
-                android:id="@+id/denyConn"
-                android:layout_width="75dp"
-                android:layout_height="75dp"
-                android:maxWidth="75dp"
-                android:minWidth="25dp"
-                android:src="@android:drawable/btn_dialog"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/acceptConn"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.0"
-                app:srcCompat="@android:drawable/btn_dialog" />
+        <ImageButton
+            android:id="@+id/acceptConn"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:adjustViewBounds="true"
+            android:background="?attr/selectableItemBackground"
+            android:maxWidth="75dp"
+            android:minWidth="25dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/checkmark2"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:contentDescription="@string/accept_connection" />
 
-            <ImageButton
-                android:id="@+id/acceptConn"
-                android:layout_width="75dp"
-                android:layout_height="75dp"
-                android:maxWidth="75dp"
-                android:minWidth="25dp"
-                android:src="?android:attr/textCheckMark"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </LinearLayout>
 
 </FrameLayout>

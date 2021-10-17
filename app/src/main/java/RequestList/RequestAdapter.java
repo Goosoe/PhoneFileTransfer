@@ -12,19 +12,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import Server.REQUEST_RESPONSE_TYPE;
 import Server.ServerUtils;
 import SillyGoose.phonefiletransfer.R;
-import SillyGoose.phonefiletransfer.ServerActivity;
 import Utils.Utils;
 
 public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestView> {
 
-    private List<RequestInfo> localDataSet;
-    private Context context;
+    private final List<RequestInfo> localDataSet;
+    private final Context context;
     /**
      * Initialize the dataset of the Adapter.
      *
@@ -40,7 +38,6 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
         localDataSet.add(request);
         int currentPos = localDataSet.size()- 1;
 
-        //TODO: visual timeout of the card needs a different solution
         Executors.newSingleThreadExecutor().submit(() -> {
             try {
                 Thread.sleep(Utils.WAIT_CONFIRMATION_TIMEOUT);
@@ -102,12 +99,10 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
         private final TextView textView;
         private final ImageButton denyConn;
         private final ImageButton acceptConnBt;
-        private View mainView;
-        private RequestAdapter adapter;
+        private final RequestAdapter adapter;
 
         public RequestView(View view, RequestAdapter adapter) {
             super(view);
-            this.mainView = view;
             this.adapter = adapter;
             textView = (TextView) view.findViewById(R.id.textView);
             denyConn = (ImageButton) view.findViewById(R.id.denyConn);

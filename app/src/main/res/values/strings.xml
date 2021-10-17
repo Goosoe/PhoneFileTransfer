@@ -12,6 +12,9 @@
     <string name="download_button_val"> Download</string>
     <string name="requests_title"> Requests:</string>
     <string name="requests_checkBox"> Accept all requests</string>
+    <string name="deny_connection">Deny Connection</string>
+    <string name="accept_connection">Accept connection</string>
+    <string name="connection_request_ip">Connection Request IP</string>
 
-<!--    %1$s-->
+    <!--    %1$s-->
 </resources>
