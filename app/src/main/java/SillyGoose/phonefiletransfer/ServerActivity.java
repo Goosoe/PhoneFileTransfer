@@ -33,13 +33,14 @@ public class ServerActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         this.setContentView(R.layout.server_layout);
         requestRecyclerView = this.findViewById(R.id.requestListView);
         requestRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         requestRecyclerView.setAdapter(new RequestAdapter(this));
         ImageButton b = this.findViewById(R.id.powerButton);
         b.setOnClickListener(listener -> super.finish());
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
     }
 
     @Override

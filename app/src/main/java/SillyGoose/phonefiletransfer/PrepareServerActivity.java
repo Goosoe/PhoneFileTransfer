@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,8 +30,9 @@ public class PrepareServerActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.setContentView(R.layout.prepare_server_layout);
 
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        this.setContentView(R.layout.prepare_server_layout);
         if(!Utils.isConnectedToWifi(this)){
             Utils.closeApp(this, "You are not connected to any local network. Please connect and try again");
         }
@@ -43,6 +45,12 @@ public class PrepareServerActivity extends Activity {
             notifyServerReady();
         });
 
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     private void notifyServerReady() {
