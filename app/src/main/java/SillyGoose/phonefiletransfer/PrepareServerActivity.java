@@ -9,7 +9,6 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -17,15 +16,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import Server.ServerUtils;
-import Utils.UriUtils;
 import Utils.Utils;
 
 public class PrepareServerActivity extends Activity {
 
     private String outputZipPath;
-    private TextView progressText;
-    private int filePathsRead;
-    private int totalFilesToZip;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,12 +30,13 @@ public class PrepareServerActivity extends Activity {
         if(!Utils.isConnectedToWifi(this)){
             Utils.closeApp(this, "You are not connected to any local network. Please connect and try again");
         }
-        progressText = findViewById(R.id.progressText);
-        updateText();
+        TextView progressText = findViewById(R.id.progressText);
+        //TODO: magic string
+        progressText.setText("Zipping Files");
         ServerUtils.cleanStorage(this);
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         executorService.submit(() -> {
-            outputZipPath = prepareZip(Arrays.asList(checkReceivedIntent()));
+            outputZipPath = prepareZip(checkReceivedIntent());
             notifyServerReady();
         });
 
@@ -60,7 +56,7 @@ public class PrepareServerActivity extends Activity {
         finish();
     }
 
-    private String[] checkReceivedIntent() {
+    private List<Uri> checkReceivedIntent() {
         Intent intent = getIntent();
         String action = intent.getAction();
         LinkedList<String> filesPaths = new LinkedList<>();
@@ -74,28 +70,7 @@ public class PrepareServerActivity extends Activity {
                 uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
                 break;
         }
-        totalFilesToZip = uris.size();
-        UriUtils uriUtils = new UriUtils(this.getBaseContext());
-        //TODO: Overkill much? - what about 1 core processors? Do they still exist?
-        if (uris != null) {
-            ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-            for (Uri fileUri : uris) {
-                executorService.submit(() -> {
-                    filesPaths.add(uriUtils.getPath(fileUri));
-                    filePathsRead++;
-                    updateText();
-                });
-            }
-            String[] itemsArray = new String[filesPaths.size()];
-            while (!executorService.isTerminated()){
-                //does nothing
-            }
-            updateText();
-            return filesPaths.toArray(itemsArray);
-
-        }
-        updateText();
-        return null;
+        return uris;
     }
 
     /**
@@ -103,21 +78,10 @@ public class PrepareServerActivity extends Activity {
      * @param filesToSend
      * @return the path of the created Zip File
      */
-    private String prepareZip(List<String> filesToSend) {
-//        if(zippedFile == null) {
+    private String prepareZip(List<Uri> filesToSend) {
         String outputName = UUID.randomUUID().toString().concat(".zip");
         String outputZipPath = this.getCacheDir() + File.separator + outputName;
-        return ServerUtils.zipFiles(filesToSend, outputZipPath) == null ? null : outputZipPath;
-//        }
-    }
+        return ServerUtils.zipFiles(this, filesToSend, outputZipPath) == null ? null : outputZipPath;
 
-    private void updateText(){
-        this.runOnUiThread(() ->{
-            String text = "Reading files: ";
-            //TODO: magic string
-            progressText.setText(text + filePathsRead + "/" + totalFilesToZip);
-            if(filePathsRead == totalFilesToZip)
-                progressText.setText("Zipping Files");
-        });
     }
 }

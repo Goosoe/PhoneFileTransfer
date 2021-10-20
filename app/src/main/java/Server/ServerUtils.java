@@ -1,58 +1,69 @@
 package Server;
 
 import android.app.Activity;
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.OpenableColumns;
 
 import org.apache.commons.compress.archivers.zip.ParallelScatterZipCreator;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryRequest;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.parallel.InputStreamSupplier;
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 
 import RequestList.RequestInfo;
 
 public class ServerUtils {
 
-    public static File zipFiles(List<String> paths, String outputZipPath){
-        if(paths.isEmpty())
+    public static File zipFiles(Context context, List<Uri> uris, String outputZipPath){
+        ArrayList<File> auxFilesToDelete = new ArrayList<>();
+
+        if(uris.isEmpty())
             return null;
 
         //If we want to send a single .zip file, there is no need to re-zip it
-        if(paths.size() == 1 && paths.get(0).contains(".zip")) {
-            File dest = new File(outputZipPath);
-            try {
-                FileUtils.copyFile(new File(paths.get(0)), dest);
-            } catch (IOException e) {
-                e.printStackTrace();
+        if(uris.size() == 1){
+            Cursor returnCursor =
+                    context.getContentResolver().query(uris.get(0), null, null, null, null);
+            returnCursor.moveToFirst();
+            String filename = returnCursor.getString(returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+            if (filename.contains(".zip")) {
+                return createCopiedFile(context, uris.get(0));
             }
-            return dest;
         }
 
         ZipArchiveOutputStream outputStream;
         ParallelScatterZipCreator zipCreator = new ParallelScatterZipCreator();
+        for(Uri uri : uris) {
+            File copied = createCopiedFile(context, uri);
+            auxFilesToDelete.add(copied);
 
-        for(String path : paths) {
-            File f = new File(path);
             InputStreamSupplier supp = () -> {
                 try {
-                    return new FileInputStream(f);
+                    return new FileInputStream(copied);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
-                    return  null;
+                    return null;
                 }
             };
+
             zipCreator.addArchiveEntry(() -> {
-                ZipArchiveEntry entry = new ZipArchiveEntry(f, f.getName());
+                ZipArchiveEntry entry = new ZipArchiveEntry(copied, copied.getName());
                 entry.setMethod(ZipArchiveOutputStream.STORED);
                 return ZipArchiveEntryRequest.createZipArchiveEntryRequest(entry, supp);
             });
@@ -63,12 +74,43 @@ public class ServerUtils {
             zipCreator.writeTo(outputStream);
             outputStream.finish();
             outputStream.close();
+
+            Executors.newSingleThreadExecutor().submit(() ->{
+                for (File f: auxFilesToDelete) {
+                    f.delete();
+                }}
+            );
+
             return outputFile;
         } catch (IOException | InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
 
         return null;
+    }
+
+    /**
+     * Creates a file and copies the content from the uri from a uri
+     * @param uri
+     * @return the copied file
+     */
+    private static File createCopiedFile(Context ctx, Uri uri) {
+        //get file name
+        Cursor returnCursor =
+                ctx.getContentResolver().query(uri, null, null, null, null);
+        returnCursor.moveToFirst();
+        String filenameToCopy = returnCursor.getString(returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+        //Make a new empty file in cachedir with var name as title
+        File f = new File(ctx.getCacheDir().getAbsolutePath() + File.separator + filenameToCopy);
+        try {
+            FileOutputStream fos = new FileOutputStream(f);
+            //copy the stuff from the existing file found in uri
+            FileInputStream fis = new FileInputStream(ctx.getContentResolver().openFileDescriptor(uri, "r").getFileDescriptor());
+            IOUtils.copy(fis, fos);
+        }catch (IOException e){
+            return null;
+        }
+        return f;
     }
 
     /**
@@ -103,7 +145,7 @@ public class ServerUtils {
     }
 
     /**
-     * Removes all zip files from context.getCacheDir() and files copied into getFilesDir()
+     * Removes all files from context.getCacheDir()
      * @param activity
      */
     public static void cleanStorage(Activity activity) {
@@ -112,16 +154,15 @@ public class ServerUtils {
 
         File cacheDir = activity.getCacheDir();
         //TODO: MT too?
-        System.out.println("cached size " + cacheDir.listFiles().length);
         if(cacheDir.listFiles() != null) {
             for (File f : cacheDir.listFiles()) {
-
                 String[] nameArray = f.getName().split("\\.");
-                if (f.getName().contains("parallelscatter") || (nameArray.length > 0 && nameArray[nameArray.length - 1].equals("zip"))) {
+                if (f.getName().contains(".zip")) {
                     f.delete();
                 }
             }
         }
+        //usually has nothing, but doesnt hurt to check (yes it does)
         if(activity.getFilesDir().listFiles() != null) {
             for (File f : activity.getFilesDir().listFiles()) {
                 for (File file : f.listFiles()) {
