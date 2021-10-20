@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.WindowManager;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -25,7 +24,7 @@ public class PrepareServerActivity extends Activity {
 
     private String outputZipPath;
     private TextView progressText;
-    private int filesZipped;
+    private int filePathsRead;
     private int totalFilesToZip;
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -83,12 +82,11 @@ public class PrepareServerActivity extends Activity {
             for (Uri fileUri : uris) {
                 executorService.submit(() -> {
                     filesPaths.add(uriUtils.getPath(fileUri));
-                    filesZipped++;
+                    filePathsRead++;
                     updateText();
                 });
             }
             String[] itemsArray = new String[filesPaths.size()];
-            executorService.shutdown();
             while (!executorService.isTerminated()){
                 //does nothing
             }
@@ -109,8 +107,7 @@ public class PrepareServerActivity extends Activity {
 //        if(zippedFile == null) {
         String outputName = UUID.randomUUID().toString().concat(".zip");
         String outputZipPath = this.getCacheDir() + File.separator + outputName;
-        ServerUtils.zipFiles(filesToSend, outputZipPath);
-        return outputZipPath;
+        return ServerUtils.zipFiles(filesToSend, outputZipPath) == null ? null : outputZipPath;
 //        }
     }
 
@@ -118,8 +115,8 @@ public class PrepareServerActivity extends Activity {
         this.runOnUiThread(() ->{
             String text = "Reading files: ";
             //TODO: magic string
-            progressText.setText(text + filesZipped + "/" + totalFilesToZip);
-            if(filesZipped == totalFilesToZip)
+            progressText.setText(text + filePathsRead + "/" + totalFilesToZip);
+            if(filePathsRead == totalFilesToZip)
                 progressText.setText("Zipping Files");
         });
     }

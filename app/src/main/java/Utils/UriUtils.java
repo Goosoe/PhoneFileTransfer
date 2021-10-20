@@ -27,7 +27,7 @@ public class UriUtils {
     }
 
     @SuppressLint("NewApi")
-    public String getPath( final Uri uri) {
+    public String getPath(final Uri uri) {
         // check here to KITKAT or new version
         final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
         String selection = null;

@@ -26,7 +26,8 @@ public class ServerUtils {
     public static File zipFiles(List<String> paths, String outputZipPath){
         if(paths.isEmpty())
             return null;
-        
+
+        //If we want to send a single .zip file, there is no need to re-zip it
         if(paths.size() == 1 && paths.get(0).contains(".zip")) {
             File dest = new File(outputZipPath);
             try {
@@ -50,7 +51,6 @@ public class ServerUtils {
                     return  null;
                 }
             };
-
             zipCreator.addArchiveEntry(() -> {
                 ZipArchiveEntry entry = new ZipArchiveEntry(f, f.getName());
                 entry.setMethod(ZipArchiveOutputStream.STORED);

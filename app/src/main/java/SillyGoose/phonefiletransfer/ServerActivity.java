@@ -107,6 +107,8 @@ public class ServerActivity extends Activity {
         int fileNumber = -1;
         //TODO: magic string
         String output = getIntent().getStringExtra("outputZipPath");
+        if(output == null)
+            Utils.closeApp(this, "Error creating the .zip file, please try again.");
         ZipFile zipFile = null;
         try {
             zipFile = new ZipFile(output);
