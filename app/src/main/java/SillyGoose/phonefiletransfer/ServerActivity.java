@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.IOException;
-import java.util.Objects;
 import java.util.zip.ZipFile;
 
 import RequestList.RequestAdapter;
@@ -25,7 +24,7 @@ import Utils.Utils;
 public class ServerActivity extends Activity {
 
     private static String ip = "localhost";
-    private static final int PORT = 8080;
+    private static  final int DEFAULT_PORT = 8080;
     private HttpServer server = null;
     private RecyclerView requestRecyclerView;
 
@@ -65,10 +64,7 @@ public class ServerActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-//        if(executorService != null && !executorService.isTerminated())
-//            executorService.shutdownNow();
         if (server != null) {
-            server.onResume();
             if (!server.isAlive()) {
                 try {
                     server.start();
@@ -122,14 +118,14 @@ public class ServerActivity extends Activity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        /*Updating server text*/
         ip = ServerUtils.getIPAddress(true);
 
         TextView serverDirections = findViewById(R.id.serverDirections);
         serverDirections.setText(R.string.connect);
 
         TextView ipText = findViewById(R.id.serverIp);
-        ipText.setText(ip.concat(":").concat(String.valueOf(PORT)));
+        ipText.setText(ip.concat(":").concat(String.valueOf(DEFAULT_PORT)));
 
         TextView fileInfo = findViewById(R.id.fileInfo);
         fileInfo.setText(getString(R.string.files_info, String.valueOf(fileNumber)));
@@ -138,7 +134,19 @@ public class ServerActivity extends Activity {
         cBox.setText(R.string.requests_checkBox);
 
         if(server == null) {
-            server = new HttpServer(ip, PORT, this, output, fileNumber);
+            try {
+                server = new HttpServer(this, DEFAULT_PORT, output, fileNumber);
+            }catch (IOException e){
+                //TODO: bruh...
+                //if port is being used try on the next one
+                try {
+                    server = new HttpServer(this, DEFAULT_PORT + 1, output, fileNumber);
+                }catch (IOException ex){
+                    Utils.closeApp(this, "The default ports of this service are already being used." +
+                            " Please try again later after closing the services using that port");
+                }
+                ipText.setText(ip.concat(":").concat(String.valueOf(DEFAULT_PORT + 1)));
+            }
         }
     }
 }

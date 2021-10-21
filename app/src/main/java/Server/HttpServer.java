@@ -19,32 +19,31 @@ public class HttpServer extends NanoHTTPD {
     private final Context context;
     private final String FILE_PATH;
     private final HashSet<String> openSessions;
-    private final String ip;
+//    private final String ip;
     private int numberOfFiles;
 
-    private HttpServer(String ip , int port, Context context, String pathOfFileToSend) {
-        super(ip,port);
+    private HttpServer(Context context, int port, String pathOfFileToSend) throws  IOException{
+        super(port);
         this.context = context;
         this.FILE_PATH = pathOfFileToSend;
-        this.ip = ip;
+//        this.ip = ip;
         this.openSessions = new HashSet<>();
         this.numberOfFiles = 0;
         try {
             start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
         } catch (IOException e) {
-            e.printStackTrace();
+           throw e;
         }
     }
 
     /***
-     * @param ip
      * @param port
      * @param context
      * @param pathOfFileToSend
      * @param numberOfFiles
      */
-    public HttpServer(String ip , int port, Context context, String pathOfFileToSend, int numberOfFiles) {
-        this(ip, port, context, pathOfFileToSend);
+    public HttpServer(Context context , int port, String pathOfFileToSend, int numberOfFiles) throws IOException{
+        this(context, port, pathOfFileToSend);
         this.numberOfFiles = numberOfFiles;
     }
 
@@ -118,9 +117,6 @@ public class HttpServer extends NanoHTTPD {
     }
 
 
-    public void onResume(){
-    }
-
     /**
      * @param hostname
      * @param ip
@@ -147,4 +143,6 @@ public class HttpServer extends NanoHTTPD {
         }
         return request.getResponseType();
     }
+
+
 }
