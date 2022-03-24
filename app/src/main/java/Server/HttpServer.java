@@ -116,7 +116,6 @@ public class HttpServer extends NanoHTTPD {
         return res;
     }
 
-
     /**
      * @param hostname
      * @param ip
@@ -143,6 +142,4 @@ public class HttpServer extends NanoHTTPD {
         }
         return request.getResponseType();
     }
-
-
 }

@@ -85,7 +85,6 @@ public class ServerUtils {
         } catch (IOException | InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
-
         return null;
     }
 
@@ -177,6 +176,4 @@ public class ServerUtils {
             request.getServeThread().interrupt();
         }
     }
-
-
 }
